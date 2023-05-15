@@ -8,8 +8,8 @@ Grid grid = new Grid(6,8);
 PImage bg;
 PImage player1;
 PImage endScreen;
-String titleText = "NameOfYourGame";
-String extraText = "Who's Turn?";
+String titleText = "penis game";
+String extraText = "real";
 AnimatedSprite exampleSprite;
 boolean doAnimation;
 
@@ -41,7 +41,6 @@ void setup() {
 //Required Processing method that automatically loops
 //(Anything drawn on the screen should be called from here)
 void draw() {
-
   updateTitleBar();
   
   updateScreen();
@@ -158,5 +157,6 @@ public void exampleAnimationSetup(){
 public void checkExampleAnimation(){
   if(doAnimation){
     exampleSprite.animateHorizontal(1.0, 0.1, true);
+
   }
 }

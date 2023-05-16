@@ -17,8 +17,8 @@
       },
       "args": [
 		"--force",
-		"--sketch=${workspaceRoot}",
-		"--output=${workspaceRoot}/out",
+		"--sketch=${workspaceRoot}/Game",
+		"--output=${workspaceRoot}/Game/out",
 		"--run"
 	  ],
       "windows": {
@@ -26,11 +26,11 @@
         "args": [
           "--force",
           {
-            "value": "--sketch=${workspaceRoot}",
+            "value": "--sketch=${workspaceRoot}\\Game",
             "quoting": "strong"
           },
           {
-            "value": "--output=${workspaceRoot}\\out",
+            "value": "--output=${workspaceRoot}\\Game\\out",
             "quoting": "strong"
           },
           "--run"

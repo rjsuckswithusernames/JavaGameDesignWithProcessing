@@ -8,7 +8,7 @@ Grid grid = new Grid(6,8);
 PImage bg;
 PImage player1;
 PImage endScreen;
-String titleText = "penis game";
+String titleText = "Puzzle game";
 String extraText = "real";
 AnimatedSprite exampleSprite;
 boolean doAnimation;

@@ -1,3 +1,11 @@
+/* Platform class
+ * Stub constructors provided
+ * Can be used with the following tutorials:
+ * https://longbaonguyen.github.io/courses/platformer/platformer.html
+ * Authors: __________________
+ * Last Edit: 5/17/2023
+ */
+
 public class Platform {//extends Sprite {
 
 	//Platform defined by it's center-x and top-Y positions

@@ -1,4 +1,8 @@
-// Inspired by Daniel Shiffman's p5js Animated Sprite tutorial
+/* Sprite class - to create objects that move around with their own properties
+ * Inspired by Daniel Shiffman's p5js Animated Sprite tutorial
+ * Author: Joel Bianchi
+ * Last Edit: 12/20/2022
+ */
 
 public class Sprite {
   

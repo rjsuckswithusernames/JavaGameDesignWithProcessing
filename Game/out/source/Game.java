@@ -28,7 +28,9 @@ public class Game extends PApplet {
  */
 
 //GAME VARIABLES
-Grid grid = new Grid(6,8);
+int maximumx = 6;
+int maximumy = 8;
+Grid grid = new Grid(maximumx,maximumy);
 PImage bg;
 PImage player1;
 PImage endScreen;
@@ -42,6 +44,7 @@ boolean doAnimation;
 //SoundFile song;
 
 int player1Row = 3;
+int player1Col = 3;
 
 
 //Required Processing method that gets run once
@@ -100,15 +103,27 @@ public void keyPressed(){
   //What to do when a key is pressed?
   
   //set "w" key to move the player1 up
-  if(keyCode == 87 && player1Row > 0){
+  if(keyCode == 87 || keyCode == 65 || keyCode == 83 || keyCode == 68){
     //check case where out of bounds
-    GridLocation a = new GridLocation(player1Row, 0);
     //change the field for player1Row
-    player1Row--;
 
+   if (keyCode == 87 && player1Row > 0){
+    player1Row--;
+   }
+   if (keyCode == 65 && player1Col > 0) {
+    player1Col--;
+   }
+   if (keyCode == 83 && player1Row < maximumx-1) {
+    player1Row++;
+   }
+   if (keyCode == 68 && player1Col < maximumy-1){
+    player1Col++;
+   }
+    System.out.println(player1Row);
+    System.out.println(player1Col);
     //shift the player1 picture up in the 2D array
 
-    GridLocation loc = new GridLocation(player1Row, 0);
+    GridLocation loc = new GridLocation(player1Row, player1Col);
     grid.setTileImage(loc, player1);
     
 
@@ -159,7 +174,7 @@ public void updateScreen(){
   background(bg);
 
   //Display the Player1 image
-  GridLocation player1Loc = new GridLocation(player1Row,0);
+  GridLocation player1Loc = new GridLocation(player1Row,player1Col);
   grid.setTileImage(player1Loc, player1);
   
   //update other screen elements

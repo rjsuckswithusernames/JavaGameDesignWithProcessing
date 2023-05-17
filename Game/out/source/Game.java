@@ -100,15 +100,17 @@ public void keyPressed(){
   //What to do when a key is pressed?
   
   //set "w" key to move the player1 up
-  if(keyCode == 87){
+  if(keyCode == 87 && player1Row > 0){
     //check case where out of bounds
-    
+    GridLocation a = new GridLocation(player1Row, 0);
     //change the field for player1Row
     player1Row--;
 
     //shift the player1 picture up in the 2D array
+
     GridLocation loc = new GridLocation(player1Row, 0);
     grid.setTileImage(loc, player1);
+    
 
     //eliminate the picture from the old location
 
@@ -161,7 +163,6 @@ public void updateScreen(){
   grid.setTileImage(player1Loc, player1);
   
   //update other screen elements
-
 
 }
 

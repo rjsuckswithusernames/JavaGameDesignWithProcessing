@@ -9,6 +9,7 @@ int maximumy = 8;
 Grid grid = new Grid(maximumx,maximumy);
 PImage bg;
 PImage player1;
+PImage player2;
 boolean secret = false;
 boolean debounce = false;
 PImage endScreen;
@@ -17,12 +18,27 @@ String extraText = "real";
 AnimatedSprite exampleSprite;
 boolean doAnimation;
 
+//INPUTS
+
+//P1
+int w = 87;
+int a = 65;
+int s = 83;
+int d = 68;
+
+//P2
+int up = 38;
+int left = 37;
+int down = 40;
+int right = 39;
 //HexGrid hGrid = new HexGrid(3);
 //import processing.sound.*;
 //SoundFile song;
 
-int player1Row = 3;
-int player1Col = 3;
+int player1Row = 0;
+int player1Col = 0;
+int player2Row = maximumx-1;
+int player2Col = maximumy-1;
 
 
 //Required Processing method that gets run once
@@ -40,6 +56,8 @@ void setup() {
   bg.resize(800,600);
   player1 = loadImage("images/x_wood.png");
   player1.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+    player2 = loadImage("images/spook.png");
+  player2.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
   endScreen = loadImage("images/youwin.png");
 
   // Load a soundfile from the /data folder of the sketch and play it back
@@ -80,48 +98,28 @@ void keyPressed(){
 
   //What to do when a key is pressed?
   
-  //set "w" key to move the player1 up
-  if(keyCode == 87 || keyCode == 65 || keyCode == 83 || keyCode == 68){
+  //player 1 movement
+  if(keyCode == w || keyCode == a || keyCode == s || keyCode == d){
     //check case where out of bounds
     //change the field for player1Row
 
-   if (keyCode == 87 && player1Row > 0){
+   if (keyCode == w && player1Row > 0){
     player1Row--;
    }
-   if (keyCode == 65 && player1Col > 0) {
+   if (keyCode == a && player1Col > 0) {
     player1Col--;
    }
-   if (keyCode == 83 && player1Row < maximumx-1) {
+   if (keyCode == s && player1Row < maximumx-1) {
     player1Row++;
    }
-   if (keyCode == 68 && player1Col < maximumy-1){
+   if (keyCode == d && player1Col < maximumy-1){
     player1Col++;
    }
     System.out.println(player1Row);
     System.out.println(player1Col);
     //shift the player1 picture up in the 2D array
-    int val = (int) (random(0, 100));
-    System.out.println(val);
     GridLocation loc = new GridLocation(player1Row, player1Col);
-
-    if (val == 99){      
-      secret = false;
-      debounce = true;
-      player1 = loadImage("images/spook.png");
-      player1.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-    }
-    else {
-      secret = true;
-      
-      
-    }
-        if (secret == true  && debounce == true){
-          player1 = loadImage("images/x_wood.png");
-          player1.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-          debounce = false;
-        }
-        
-         grid.setTileImage(loc,player1);
+    grid.setTileImage(loc,player1);
 
     
     
@@ -130,7 +128,34 @@ void keyPressed(){
     //eliminate the picture from the old location
 
   }
-}
+  if(keyCode == up || keyCode == left || keyCode == down || keyCode == right){
+   if (keyCode == up && player2Row > 0){
+    player2Row--;
+   }
+   if (keyCode == left && player2Col > 0) {
+    player2Col--;
+   }
+   if (keyCode == down && player2Row < maximumx-1) {
+    player2Row++;
+   }
+   if (keyCode == right && player2Col < maximumy-1){
+    player2Col++;
+   }
+    System.out.println(player2Row);
+    System.out.println(player2Col);
+    //shift the player1 picture up in the 2D array
+    GridLocation loc = new GridLocation(player2Row, player2Col);
+    grid.setTileImage(loc,player2);
+  }
+    
+
+    
+    
+    
+
+    //eliminate the picture from the old location
+
+  }
   //Known Processing method that automatically will run when a mouse click triggers it
   void mouseClicked(){
   
@@ -176,7 +201,8 @@ public void updateScreen(){
   //Display the Player1 image
   GridLocation player1Loc = new GridLocation(player1Row,player1Col);
   grid.setTileImage(player1Loc, player1);
-  
+  GridLocation player2Loc = new GridLocation(player2Row,player2Col);
+  grid.setTileImage(player2Loc, player2);
   //update other screen elements
 
 }

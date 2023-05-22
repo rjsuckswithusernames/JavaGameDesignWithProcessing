@@ -47,7 +47,6 @@ void setup() {
 
   //Match the screen size to the background image size
   size(800, 600);
-
   //Set the title on the title bar
   surface.setTitle(titleText);
 
@@ -61,7 +60,7 @@ void setup() {
   PImage p2image = loadImage("images/spook.png");
   p2image.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
   player1 = new Player(p1image);
-  player2 = new Player(p2image,player2Row,player2Col);
+  player2 = new Player(p2image,maximumx-1,maximumy-1);
   endScreen = loadImage("images/youwin.png");
 
   // Load a soundfile from the /data folder of the sketch and play it back

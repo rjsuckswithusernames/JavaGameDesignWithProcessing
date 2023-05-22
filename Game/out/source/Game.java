@@ -28,14 +28,17 @@ public class Game extends PApplet {
  */
 
 //GAME VARIABLES
-int maximumx = 6;
+
+int maximumx = 8;
 int maximumy = 8;
 Grid grid = new Grid(maximumx,maximumy);
 PImage bg;
-PImage player1;
-PImage player2;
+
 boolean secret = false;
 boolean debounce = false;
+PImage p1image;
+Player player1;
+Player player2;
 PImage endScreen;
 String titleText = "Puzzle game";
 String extraText = "real";
@@ -45,24 +48,22 @@ boolean doAnimation;
 //INPUTS
 
 //P1
-int w = 87;
-int a = 65;
-int s = 83;
-int d = 68;
+int wkey = 87;
+int akey = 65;
+int skey = 83;
+int dkey = 68;
+int ekey = 69; //nice
 
 //P2
 int up = 38;
 int left = 37;
 int down = 40;
 int right = 39;
+int space = 32;
 //HexGrid hGrid = new HexGrid(3);
 //import processing.sound.*;
 //SoundFile song;
 
-int player1Row = 0;
-int player1Col = 0;
-int player2Row = maximumx-1;
-int player2Col = maximumy-1;
 
 
 //Required Processing method that gets run once
@@ -78,10 +79,13 @@ public void setup() {
   //bg = loadImage("images/chess.jpg");
   bg = loadImage("images/werksugvfuywegg.jpg");
   bg.resize(800,600);
-  player1 = loadImage("images/x_wood.png");
-  player1.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-    player2 = loadImage("images/spook.png");
-  player2.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+
+  PImage p1image = loadImage("images/x_wood.png");
+  p1image.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+  PImage p2image = loadImage("images/spook.png");
+  p2image.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+  player1 = new Player(p1image);
+  player2 = new Player(p2image,player2Row,player2Col);
   endScreen = loadImage("images/youwin.png");
 
   // Load a soundfile from the /data folder of the sketch and play it back
@@ -123,47 +127,27 @@ public void keyPressed(){
   //What to do when a key is pressed?
   
   //player 1 movement
-  if(keyCode == w || keyCode == a || keyCode == s || keyCode == d){
+  if(keyCode == wkey || keyCode == akey || keyCode == skey || keyCode == dkey){
     //check case where out of bounds
     //change the field for player1Row
 
-   if (keyCode == w && player1Row > 0){
-    player1Row--;
+   if (keyCode == wkey && player1.getX() > 0 && !(player1.getX()-1 == player2.getX() && player1.getY()  == player2.getY()) ){
+    player1.lowerX();
    }
-   if (keyCode == a && player1Col > 0) {
-    player1Col--;
+   if (keyCode == akey && player1.getY()  > 0 && !(player1.getY()-1 == player2.getY() && player1.getX() == player2.getX())) {
+    player1.lowerY();
    }
-   if (keyCode == s && player1Row < maximumx-1) {
-    player1Row++;
+   if (keyCode == skey && player1.getX() < grid.getRows()-1 && !(player1.getX()+1 == player2.getX() && player1.getY()  == player2.getY())) {
+    player1.raiseX();
    }
-   if (keyCode == d && player1Col < maximumy-1){
-    player1Col++;
+   if (keyCode == dkey && player1.getY() < grid.getCols()-1 && !(player1.getY()+1 == player2.getY() && player1.getX() == player2.getX())) {
+    player1.raiseY();
    }
-    System.out.println(player1Row);
-    System.out.println(player1Col);
+    System.out.println(player1.getX());
+    System.out.println(player1.getY());
     //shift the player1 picture up in the 2D array
-    int val = (int) (random(0, 100));
-    System.out.println(val);
-    GridLocation loc = new GridLocation(player1Row, player1Col);
-
-    if (val == 99){      
-      secret = false;
-      debounce = true;
-      player1 = loadImage("images/spook.png");
-      player1.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-    }
-    else {
-      secret = true;
-      
-      
-    }
-        if (secret == true  && debounce == true){
-          player1 = loadImage("images/x_wood.png");
-          player1.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-          debounce = false;
-        }
-        
-         grid.setTileImage(loc,player1);
+    GridLocation loc = new GridLocation(player1.getX(), player1.getY());
+    grid.setTileImage(loc,player1.getImage());
 
     
     
@@ -173,23 +157,23 @@ public void keyPressed(){
 
   }
   if(keyCode == up || keyCode == left || keyCode == down || keyCode == right){
-   if (keyCode == up && player2Row > 0){
-    player2Row--;
+   if (keyCode == up && player2.getX() > 0 && !(player2.getX()-1 == player1.getX() && player1.getY()  == player2.getY()) ){
+    player2.lowerX();
    }
-   if (keyCode == left && player2Col > 0) {
-    player2Col--;
+   if (keyCode == left && player2.getY()  > 0 && !(player2.getY()-1 == player1.getY() && player1.getX() == player2.getX())) {
+    player2.lowerY();
    }
-   if (keyCode == down && player2Row < maximumx-1) {
-    player2Row++;
+   if (keyCode == down && player2.getX() < grid.getRows()-1 && !(player2.getX()+1 == player1.getX() && player1.getY()  == player2.getY())) {
+    player2.raiseX();
    }
-   if (keyCode == right && player2Col < maximumy-1){
-    player2Col++;
+   if (keyCode == right && player2.getY() < grid.getCols()-1 && !(player2.getY()+1 == player1.getY() && player1.getX() == player2.getX())) {
+    player2.raiseY();
    }
-    System.out.println(player2Row);
-    System.out.println(player2Col);
+    System.out.println(player2.getX());
+    System.out.println(player2.getY());
     //shift the player1 picture up in the 2D array
-    GridLocation loc = new GridLocation(player2Row, player2Col);
-    grid.setTileImage(loc,player2);
+    GridLocation loc = new GridLocation(player2.getX(), player2.getY());
+    grid.setTileImage(loc,player2.getImage());
   }
     
 
@@ -243,10 +227,10 @@ public void updateScreen(){
   background(bg);
 
   //Display the Player1 image
-  GridLocation player1Loc = new GridLocation(player1Row,player1Col);
-  grid.setTileImage(player1Loc, player1);
-  GridLocation player2Loc = new GridLocation(player2Row,player2Col);
-  grid.setTileImage(player2Loc, player2);
+  GridLocation player1Loc = new GridLocation(player1.getX(), player1.getY());
+  grid.setTileImage(player1Loc, player1.getImage());
+    GridLocation player2loc = new GridLocation(player2.getX(), player2.getY());
+    grid.setTileImage(player2loc,player2.getImage());
   //update other screen elements
 
 }
@@ -1521,6 +1505,58 @@ public class Platform {//extends Sprite {
 		this(posXCenter, posYTop, platWidth, platHeight, color(0,0,0));
 	}
 
+}
+public class Player{
+
+    private int posx;
+    private int posy;
+    private PImage Pi;
+
+    public Player(PImage P){
+        this(P,0,0);
+    }
+    public Player(PImage P, int x, int y){
+        this.Pi = P;
+        this.posx = x;
+        this.posy = y;
+    }
+    public PImage getImage(){
+        return Pi;
+    }
+    public int getX(){
+        return posx;
+    }
+    public int getY(){
+        return posy;
+    }
+    public void setImage(PImage P){
+        Pi = P;
+    }
+    public void setX(int x){
+        posx = x;
+    }
+    public void setY(int y){
+        posy = y;
+    }
+    public void lowerX(){
+        posx--;
+    }
+    public void lowerY(){
+        posy--;
+    }
+    public void raiseX(){
+        posx++;
+    }
+    public void raiseY(){
+        posy++;
+    }
+    public boolean collisionCheck(int newx, int newy, Player p2){
+        if (newx == p2.getX() && newy == p2.getY())
+        {
+            return true;
+        }
+        return false;
+    }
 }
 /* Sprite class - to create objects that move around with their own properties
  * Inspired by Daniel Shiffman's p5js Animated Sprite tutorial

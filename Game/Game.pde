@@ -9,6 +9,8 @@ int maximumy = 8;
 Grid grid = new Grid(maximumx,maximumy);
 PImage bg;
 PImage player1;
+boolean secret = false;
+boolean debounce = false;
 PImage endScreen;
 String titleText = "Puzzle game";
 String extraText = "real";
@@ -98,9 +100,31 @@ void keyPressed(){
     System.out.println(player1Row);
     System.out.println(player1Col);
     //shift the player1 picture up in the 2D array
-
+    int val = (int) (random(0, 100));
+    System.out.println(val);
     GridLocation loc = new GridLocation(player1Row, player1Col);
-    grid.setTileImage(loc, player1);
+
+    if (val == 99){      
+      secret = false;
+      debounce = true;
+      player1 = loadImage("images/spook.png");
+      player1.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+    }
+    else {
+      secret = true;
+      
+      
+    }
+        if (secret == true  && debounce == true){
+          player1 = loadImage("images/x_wood.png");
+          player1.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+          debounce = false;
+        }
+        
+         grid.setTileImage(loc,player1);
+
+    
+    
     
 
     //eliminate the picture from the old location

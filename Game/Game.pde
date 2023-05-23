@@ -12,7 +12,6 @@ PImage bg;
 
 boolean secret = false;
 boolean debounce = false;
-PImage p1image;
 Player player1;
 Player player2;
 PImage endScreen;

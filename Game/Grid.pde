@@ -1,8 +1,8 @@
 /* Grid Class - Used for rectangular-tiled games
  * A 2D array of GridTiles which can be marked
  * Author: Joel Bianchi
- * Last Edit: 5/17/2023
- * Edited to integrate with HexTile
+ * Last Edit: 5/22/2023
+ * Edited to integrate with HexTile, revised based on GridLocation edits
  */
 
 public class Grid{
@@ -34,7 +34,7 @@ public class Grid{
   // This mark is not necessarily visible, but can help in tracking
   // what you want recorded at each GridLocation.
   public void setMark(String mark, GridLocation loc){
-    board[loc.getR()][loc.getC()].setNewMark(mark);
+    board[loc.getRow()][loc.getCol()].setNewMark(mark);
     printGrid();
   } 
 
@@ -43,8 +43,8 @@ public class Grid{
   // what you want recorded at each GridLocation.  
   // Returns true if mark is correctly set (no previous mark) or false if not
   public boolean setNewMark(String mark, GridLocation loc){
-    int row = loc.getR();
-    int col = loc.getC();
+    int row = loc.getRow();
+    int col = loc.getCol();
     boolean isGoodClick = board[row][col].setNewMark(mark);
     printGrid();
     return isGoodClick;
@@ -74,7 +74,7 @@ public class Grid{
   public int getX(GridLocation loc){
     int widthOfOneTile = pixelWidth/this.cols;
     //calculate the left of the grid GridLocation
-    int pixelX = (widthOfOneTile * loc.getC()); 
+    int pixelX = (widthOfOneTile * loc.getCol()); 
     return pixelX;
   }
   public int getX(int row, int col){
@@ -85,7 +85,7 @@ public class Grid{
   public int getY(GridLocation loc){
     int heightOfOneTile = pixelHeight/this.rows;
     //calculate the top of the grid GridLocation
-    int pixelY = (heightOfOneTile * loc.getR()); 
+    int pixelY = (heightOfOneTile * loc.getRow()); 
     return pixelY;
   }
   public int getY(int row, int col){
@@ -94,12 +94,12 @@ public class Grid{
 
   
   //Accessor method that returns the number of rows in the Grid
-  public int getRows(){
+  public int getNumRows(){
     return rows;
   }
   
   //Accessor method that returns the number of cols in the Grid
-  public int getCols(){
+  public int getNumCols(){
     return cols;
   }
 
@@ -109,13 +109,13 @@ public class Grid{
   }
   //Accessor method that returns the height of 1 Tile in the Grid
   public int getTileHeightPixels(){
-    return pixelHeight/this.cols;
+    return pixelHeight/this.rows;
   }
 
 
   //Returns the GridTile object stored at a specified GridLocation
   public GridTile getTile(GridLocation loc){
-    return board[loc.getR()][loc.getC()];
+    return board[loc.getRow()][loc.getCol()];
   }
 
   //Returns the GridTile object stored at a specified row and column
@@ -123,12 +123,20 @@ public class Grid{
     return board[r][c];
   }
 
+  //------------------PImage Methods ---------------//
   //Method that sets the image at a particular tile in the grid & displays it
   public void setTileImage(GridLocation loc, PImage pi){
     GridTile tile = getTile(loc);
     tile.setImage(pi);
-    image(pi,getX(loc),getY(loc));
-    //System.out.println("Setting Tile Image: " + getX(loc) + "," + getY(loc));
+    if(pi != null){
+      image(pi,getX(loc),getY(loc));
+      //System.out.println("Setting Tile Image: " + getX(loc) + "," + getY(loc));
+    }
+  }
+
+  //Method that clears the tile image
+  public void clearTileImage(GridLocation loc){
+    setTileImage(loc,null);
   }
 
   //Method that returns the PImage associated with a particular Tile
@@ -137,5 +145,54 @@ public class Grid{
     return tile.getImage();
   }
 
-  
+  //Method that returns if a Tile has a PImage
+  public boolean hasTileImage(GridLocation loc){
+    GridTile tile = getTile(loc);
+    return tile.hasImage();
+  }
+
+  //------------------AnimatedSprite Methods ---------------//
+  //Method that sets the Sprite at a particular tile in the grid & displays it
+  public void setTileSprite(GridLocation loc, AnimatedSprite sprite){
+    GridTile tile = getTile(loc);
+    if(sprite == null){
+      tile.setSprite(null);
+      //System.out.println("Cleared tile @ " + loc);
+      return;
+    }
+    sprite.setLeft(getX(loc));
+    sprite.setTop(getY(loc));
+    tile.setSprite(sprite);
+    sprite.animateMove(0.0, 0.0, 1.0, true);
+    //System.out.println("Succcessfully set tile @ " + loc);
+  }
+
+  //Method that clears the tile image
+  public void clearTileSprite(GridLocation loc){
+    setTileSprite(loc,null);
+  }
+
+  //Method that returns the PImage associated with a particular Tile
+  public AnimatedSprite getTileSprite(GridLocation loc){
+    GridTile tile = getTile(loc);
+    //System.out.println("Grid.getTileSprite() " + tile.getSprite());
+    return tile.getSprite();
+  }
+
+  //Method that returns if a Tile has a PImage
+  public boolean hasTileSprite(GridLocation loc){
+    GridTile tile = getTile(loc);
+    return tile.hasSprite();
+  }
+
+
+  public void pause(final int milliseconds) {
+    try {
+      Thread.sleep(milliseconds);
+    } catch (final Exception e) {
+      // ignore
+    }
+  }
+
+
 }

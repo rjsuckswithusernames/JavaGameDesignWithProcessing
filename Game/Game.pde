@@ -3,7 +3,11 @@
  * Authors: Raymond Morel, Muhammad Zahid
  */
 
+
+//import processing.sound.*;
+
 //GAME VARIABLES
+private int msElapsed = 0;
 
 int maximumx = 8;
 int maximumy = 8;
@@ -36,8 +40,7 @@ int left = 37;
 int down = 40;
 int right = 39;
 int space = 32;
-//HexGrid hGrid = new HexGrid(3);
-//import processing.sound.*;
+
 //SoundFile song;
 
 
@@ -71,25 +74,35 @@ void setup() {
   //Animation & Sprite setup
   exampleAnimationSetup();
 
+  imageMode(CORNER);    //Set Images to read coordinates at corners
+  //fullScreen();   //only use if not using a specfic bg image
+  
   println("Game started...");
 
-  //fullScreen();   //only use if not using a specfic bg image
 }
 
 //Required Processing method that automatically loops
 //(Anything drawn on the screen should be called from here)
 void draw() {
 
+
   updateTitleBar();
+
+  if (msElapsed % 300 == 0) {
+    populateSprites();
+    moveSprites();
+  }
+
   updateScreen();
-  populateSprites();
-  moveSprites();
   
   if(isGameOver()){
     endGame();
   }
 
   checkExampleAnimation();
+  
+  msElapsed +=100;
+  grid.pause(100);
 
 }
 
@@ -112,10 +125,10 @@ void keyPressed(){
    if (keyCode == akey && player1.getY()  > 0 && !(player1.getY()-1 == player2.getY() && player1.getX() == player2.getX())) {
     player1.lowerY();
    }
-   if (keyCode == skey && player1.getX() < grid.getRows()-1 && !(player1.getX()+1 == player2.getX() && player1.getY()  == player2.getY())) {
+   if (keyCode == skey && player1.getX() < grid.getNumRows()-1 && !(player1.getX()+1 == player2.getX() && player1.getY()  == player2.getY())) {
     player1.raiseX();
    }
-   if (keyCode == dkey && player1.getY() < grid.getCols()-1 && !(player1.getY()+1 == player2.getY() && player1.getX() == player2.getX())) {
+   if (keyCode == dkey && player1.getY() < grid.getNumCols()-1 && !(player1.getY()+1 == player2.getY() && player1.getX() == player2.getX())) {
     player1.raiseY();
    }
     System.out.println(player1.getX());
@@ -125,12 +138,11 @@ void keyPressed(){
     grid.setTileImage(loc,player1.getImage());
 
     
-    
-    
-
     //eliminate the picture from the old location
 
-  }
+  } //end player1movement
+
+  //Player2 movement
   if(keyCode == up || keyCode == left || keyCode == down || keyCode == right){
    if (keyCode == up && player2.getX() > 0 && !(player2.getX()-1 == player1.getX() && player1.getY()  == player2.getY()) ){
     player2.lowerX();
@@ -138,10 +150,10 @@ void keyPressed(){
    if (keyCode == left && player2.getY()  > 0 && !(player2.getY()-1 == player1.getY() && player1.getX() == player2.getX())) {
     player2.lowerY();
    }
-   if (keyCode == down && player2.getX() < grid.getRows()-1 && !(player2.getX()+1 == player1.getX() && player1.getY()  == player2.getY())) {
+   if (keyCode == down && player2.getX() < grid.getNumRows()-1 && !(player2.getX()+1 == player1.getX() && player1.getY()  == player2.getY())) {
     player2.raiseX();
    }
-   if (keyCode == right && player2.getY() < grid.getCols()-1 && !(player2.getY()+1 == player1.getY() && player1.getX() == player2.getX())) {
+   if (keyCode == right && player2.getY() < grid.getNumCols()-1 && !(player2.getY()+1 == player1.getY() && player1.getX() == player2.getX())) {
     player2.raiseY();
    }
     System.out.println(player2.getX());
@@ -149,16 +161,12 @@ void keyPressed(){
     //shift the player1 picture up in the 2D array
     GridLocation loc = new GridLocation(player2.getX(), player2.getY());
     grid.setTileImage(loc,player2.getImage());
-  }
+  } //end Player2movement
     
-
-    
-    
-    
-
-    //eliminate the picture from the old location
 
   }
+
+
   //Known Processing method that automatically will run when a mouse click triggers it
   void mouseClicked(){
   
@@ -206,17 +214,61 @@ public void updateScreen(){
   grid.setTileImage(player1Loc, player1.getImage());
     GridLocation player2loc = new GridLocation(player2.getX(), player2.getY());
     grid.setTileImage(player2loc,player2.getImage());
+
+  //Loop through all the Tiles and display its images/sprites
+  
+
+      //Store temporary GridLocation
+      
+      //Check if the tile has an image/sprite 
+      //--> Display the tile's image/sprite
+
+
+
   //update other screen elements
 
 }
 
 //Method to populate enemies or other sprites on the screen
 public void populateSprites(){
+  
+  //What is the index for the last column?
+  
+
+  //Loop through all the rows in the last column
+  
+    //Generate a random number
+    
+
+    //10% of the time, decide to add an enemy image to a Tile
+    
 
 }
 
 //Method to move around the enemies/sprites on the screen
 public void moveSprites(){
+  //Loop through all of the rows & cols in the grid
+  
+    //Store the 2 tile locations to move
+
+    //Check if the current tile has an image that is not player1      
+
+
+      //Get image/sprite from current location
+
+
+      //CASE 1: Collision with player1
+
+
+      //CASE 2: Move enemy over to new location
+
+      
+      //Erase image/sprite from old location
+      
+      //System.out.println(loc + " " + grid.hasTileImage(loc));
+
+
+    //CASE 3: Enemy leaves screen at first column
 
 
 }
@@ -252,6 +304,6 @@ public void exampleAnimationSetup(){
 //example method that animates the horse Sprites
 public void checkExampleAnimation(){
   if(doAnimation){
-    exampleSprite.animateVertical(1.0, 0.1, true);
+    exampleSprite.animateVertical(5.0, 0.1, true);
   }
 }

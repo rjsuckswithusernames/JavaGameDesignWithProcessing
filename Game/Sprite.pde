@@ -1,14 +1,16 @@
 /* Sprite class - to create objects that move around with their own properties
  * Inspired by Daniel Shiffman's p5js Animated Sprite tutorial
  * Author: Joel Bianchi
- * Last Edit: 12/20/2022
+ * Last Edit: 5/23/22
+ * Modified to account for picture coordinates at Top, Left corner
  */
 
 public class Sprite {
   
     PImage spriteImg;
-    private float center_x;
-    private float center_y;
+    private String spriteImgPath;
+    private float center_x = 0.0;
+    private float center_y = 0.0;
     private float speed_x;
     private float speed_y;
     private float w;
@@ -18,8 +20,10 @@ public class Sprite {
 
   // Main Constructor
   public Sprite(String spriteImgPath, float scale, float x, float y, boolean isAnimated) {
-    this.center_x = x;
-    this.center_y = y;
+    this.spriteImgPath = spriteImgPath;
+    setLeft(x);
+    setTop(y);
+    System.out.println("AS topleft: "+getLeft()+","+getTop());
     this.speed_x = 0;
     this.speed_y = 0;
     this.isAnimated = isAnimated;
@@ -28,29 +32,31 @@ public class Sprite {
       w = spriteImg.width * scale;
       h = spriteImg.height * scale;
     }
+
   }
 
   // Simpler Constructor for Non-Animated Sprite
-  public Sprite(String spriteImg, float x, float y) {
-    this(spriteImg, 1.0, x, y, false);
+  public Sprite(String spriteImgPath, float x, float y) {
+    this(spriteImgPath, 1.0, x, y, false);
   }
 
 
   // method to display the Sprite image on the screen
   public void show() {
-      image(spriteImg, this.center_x, this.center_y, w, h);
+      image(spriteImg, getLeft(), getTop(), w, h);
   }
 
   // method to move Sprite image on the screen to a specific coordinate
   public void moveTo(float x, float y){
-    this.center_x = x;
-    this.center_y = y;
+    setLeft(x);
+    setTop(y);
   }
 
   // method to move Sprite image on the screen relative to current position
   public void move(float change_x, float change_y){
     this.center_x += change_x;
     this.center_y += change_y;
+    //System.out.println(getLeft() + "," + getTop());
   }
 
   // method that automatically moves the Sprite based on its velocity
@@ -66,10 +72,17 @@ public class Sprite {
 
 
   /*-- ACCESSOR METHODS --*/
-  public float getX(){
+
+  public float getW(){
+    return w;
+  }
+  public float getH(){
+    return h;
+  }
+  public float getCenterX(){
     return center_x;
   }
-  public float getY(){
+  public float getCenterY(){
     return center_y;
   }
   public PImage getImg(){
@@ -81,11 +94,17 @@ public class Sprite {
   
   
   /*-- MUTATOR METHODS --*/
-  public void setX(float x){
-    this.center_x = x;
+  public void setW(float w){
+    this.w = w;
   }
-  public void setY(float y){
-    this.center_y=y;
+  public void setH(float h){
+    this.h=h;
+  }
+  public void setCenterX(float center_x){
+    this.center_x = center_x;
+  }
+  public void setCenterY(float center_y){
+    this.center_y=center_y;
   }
   public void setImg(PImage img){
     this.spriteImg = img;
@@ -124,5 +143,35 @@ public class Sprite {
     return center_y + h/2;
   }
   
+
+  //Accessor method to the image path of the Sprite
+  public String getImagePath(){
+    return this.spriteImgPath;
+  }
+  
+  //Accessor method to the image path of the Sprite
+  public PImage getImage(){
+    return this.spriteImg;
+  }
+
+  // //Method to check if 2 Sprites are the same (based on String)
+  // public boolean equals(Sprite otherSprite){
+  //   if(this.spriteImgPath.equals(otherSprite.getImagePath())){
+  //     return true;
+  //   }
+  //   return false;
+  // }
+
+  //Method to check if 2 Sprites are the same (based on PImage)
+  public boolean equals(Sprite otherSprite){
+    if(this.spriteImg.equals(otherSprite.getImage())){
+      return true;
+    }
+    return false;
+  }
+
+  public String toString(){
+    return spriteImgPath + "\t" + getLeft() + "\t" + getTop() + "\t" + speed_x + "\t" + speed_y + "\t" + w + "\t" + h + "\t" + isAnimated;
+  }
 
 }

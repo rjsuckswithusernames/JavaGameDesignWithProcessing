@@ -1,8 +1,8 @@
 /* Grid Class - Used for rectangular-tiled games
  * A 2D array of GridTiles which can be marked
  * Author: Joel Bianchi
- * Last Edit: 5/22/2023
- * Edited to integrate with HexTile, revised based on GridLocation edits
+ * Last Edit: 5/24/2023
+ * Edited to show all Images & Sprites
  */
 
 public class Grid{
@@ -30,6 +30,7 @@ public class Grid{
      this(3,3);
   }
 
+ 
   // Method that Assigns a String mark to a location in the Grid.  
   // This mark is not necessarily visible, but can help in tracking
   // what you want recorded at each GridLocation.
@@ -128,15 +129,7 @@ public class Grid{
   public void setTileImage(GridLocation loc, PImage pi){
     GridTile tile = getTile(loc);
     tile.setImage(pi);
-    if(pi != null){
-      image(pi,getX(loc),getY(loc));
-      //System.out.println("Setting Tile Image: " + getX(loc) + "," + getY(loc));
-    }
-  }
-
-  //Method that clears the tile image
-  public void clearTileImage(GridLocation loc){
-    setTileImage(loc,null);
+    showTileImage(loc);
   }
 
   //Method that returns the PImage associated with a particular Tile
@@ -145,10 +138,41 @@ public class Grid{
     return tile.getImage();
   }
 
+
   //Method that returns if a Tile has a PImage
   public boolean hasTileImage(GridLocation loc){
     GridTile tile = getTile(loc);
     return tile.hasImage();
+  }
+
+  //Method that clears the tile image
+  public void clearTileImage(GridLocation loc){
+    setTileImage(loc,null);
+  }
+
+  public void showTileImage(GridLocation loc){
+    GridTile tile = getTile(loc);
+    if(tile.hasImage()){
+      image(tile.getImage(),getX(loc),getY(loc));
+    }
+  }
+
+  //Method to show all the PImages stored in each GridTile
+  public void showImages(){
+
+    //Loop through all the Tiles and display its images/sprites
+      for(int r=0; r<getNumRows(); r++){
+        for(int c=0; c<getNumCols(); c++){
+
+          //Store temporary GridLocation
+          GridLocation tempLoc = new GridLocation(r,c);
+          
+          //Check if the tile has an image
+          if(hasTileImage(tempLoc)){
+            showTileImage(tempLoc);
+          }
+        }
+      }
   }
 
   //------------------AnimatedSprite Methods ---------------//
@@ -163,8 +187,21 @@ public class Grid{
     sprite.setLeft(getX(loc));
     sprite.setTop(getY(loc));
     tile.setSprite(sprite);
-    sprite.animateMove(0.0, 0.0, 1.0, true);
+    showTileSprite(loc);
     //System.out.println("Succcessfully set tile @ " + loc);
+  }
+  
+  //Method that returns the PImage associated with a particular Tile
+  public AnimatedSprite getTileSprite(GridLocation loc){
+    GridTile tile = getTile(loc);
+    //System.out.println("Grid.getTileSprite() " + tile.getSprite());
+    return tile.getSprite();
+  }
+  
+  //Method that returns if a Tile has a PImage
+  public boolean hasTileSprite(GridLocation loc){
+    GridTile tile = getTile(loc);
+    return tile.hasSprite();
   }
 
   //Method that clears the tile image
@@ -172,18 +209,37 @@ public class Grid{
     setTileSprite(loc,null);
   }
 
-  //Method that returns the PImage associated with a particular Tile
-  public AnimatedSprite getTileSprite(GridLocation loc){
+  public void showTileSprite(GridLocation loc){
     GridTile tile = getTile(loc);
-    //System.out.println("Grid.getTileSprite() " + tile.getSprite());
-    return tile.getSprite();
+    if(tile.hasSprite()){
+      tile.getSprite().animateMove(0.0, 0.0, 1.0, true);
+    }
   }
 
-  //Method that returns if a Tile has a PImage
-  public boolean hasTileSprite(GridLocation loc){
-    GridTile tile = getTile(loc);
-    return tile.hasSprite();
+  
+  //Method to show all the PImages stored in each GridTile
+  public void showSprites(){
+
+    //Loop through all the Tiles and display its images/sprites
+      for(int r=0; r<getNumRows(); r++){
+        for(int c=0; c<getNumCols(); c++){
+
+          //Store temporary GridLocation
+          GridLocation tempLoc = new GridLocation(r,c);
+          
+          //Check if the tile has an image
+          if(hasTileSprite(tempLoc)){
+            setTileSprite(tempLoc, getTileSprite(tempLoc));
+            //showTileSprite(tempLoc);
+          }
+        }
+      }
   }
+
+
+
+
+
 
 
   public void pause(final int milliseconds) {

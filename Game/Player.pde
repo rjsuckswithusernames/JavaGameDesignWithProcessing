@@ -1,4 +1,4 @@
-public class Player{
+public class Player{    //Consider having Player extend from AnimatedSprite
 
     private int posx;
     private int posy;

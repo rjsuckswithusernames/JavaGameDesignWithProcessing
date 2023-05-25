@@ -1,6 +1,7 @@
 /* GridLocation class - helper class to store coordinates more easily
  * Author: Joel Bianchi
- * Last Edit: 5/17/2023
+ * Last Edit: 5/22/2023
+ * Added .equals() method, Renamed getRow() & getCol()
  */
 
 public class GridLocation{
@@ -13,11 +14,11 @@ public class GridLocation{
     this.col = col;
   }
   
-  public int getR(){
+  public int getRow(){
     return row;
   }
   
-  public int getC(){
+  public int getCol(){
     return col;
   }
   
@@ -26,11 +27,19 @@ public class GridLocation{
   }
   
   public int getYCoord() {
-    return -1;
+    return row;
   }
   
   public int getXCoord() {
-    return -1;
+    return col;
+  }
+
+  public boolean equals(GridLocation otherLoc){
+    if(getRow() == otherLoc.getRow() && getCol() == otherLoc.getCol()){
+      return true;
+    }
+    return false;
+
   }
  
 }

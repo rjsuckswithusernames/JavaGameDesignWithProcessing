@@ -27,7 +27,7 @@ int wkey = 87;
 int akey = 65;
 int skey = 83;
 int dkey = 68;
-int ekey = 69; //nice
+int ekey = 69;
 
 //P2
 int up = 38;

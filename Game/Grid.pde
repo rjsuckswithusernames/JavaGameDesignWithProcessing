@@ -6,10 +6,23 @@
  */
 
 public class Grid{
-  
   private int rows;
   private int cols;
   private GridTile[][] board;
+  private String[][] template = {
+    {"x","x","","","","","","","","","","x","x"},
+    {"x","▉","","▉","","▉","","▉","","▉","","▉","x"},
+    {"x","","","","","","","","","","","","x"},
+    {"","▉","","▉","","▉","","▉","","▉","","▉",""},
+    {"","","","","","","","","","","","",""},
+    {"","▉","","▉","","▉","","▉","","▉","","▉",""},
+    {"","","","","","","","","","","","",""},
+    {"","▉","","▉","","▉","","▉","","▉","","▉",""},
+    {"x","","","","","","","","","","","","x"},
+    {"x","▉","","▉","","▉","","▉","","▉","","▉","x"},
+    {"x","x","","","","","","","","","","x","x"}
+  };
+  private Block[][] blocklist;
   
 
   //Grid constructor that will create a Grid with the specified number of rows and cols
@@ -17,6 +30,7 @@ public class Grid{
     this.rows = rows;
     this.cols = cols;
     board = new GridTile[rows][cols];
+    blocklist = new Block[rows][cols];
     
     for(int r=0; r<rows; r++){
       for(int c=0; c<cols; c++){
@@ -25,12 +39,32 @@ public class Grid{
     }
   }
 
+  public void generateLevel()
+  {
+    PImage wall = loadImage("images/bricks.jpg");
+    wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+    PImage fire = loadImage("images/fireblu.png");
+    fire.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+    for (int x = 0; x < rows; x++){
+      for (int y = 0; y < cols; y++){
+        if (template[x][y].equals("") && Math.random() < 0.90){
+
+          blocklist[x][y] = new Block(fire,x,y,"Fire");
+        }
+        else if (template[x][y].equals("▉")){
+          blocklist[x][y] = new Block(wall,x,y,"Indestructible");
+        }
+      }
+    }
+  }
   // Default Grid constructor that creates a 3x3 Grid  
   public Grid(){
      this(3,3);
   }
 
- 
+  public Block[][] getBList(){
+    return blocklist;
+  }
   // Method that Assigns a String mark to a location in the Grid.  
   // This mark is not necessarily visible, but can help in tracking
   // what you want recorded at each GridLocation.

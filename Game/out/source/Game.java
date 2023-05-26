@@ -33,8 +33,8 @@ public class Game extends PApplet {
 //GAME VARIABLES
 private int msElapsed = 0;
 
-int maximumx = 8;
-int maximumy = 8;
+int maximumx = 11;
+int maximumy = 13;
 Grid grid = new Grid(maximumx,maximumy);
 PImage bg;
 
@@ -47,6 +47,7 @@ String titleText = "Puzzle game";
 String extraText = "real";
 AnimatedSprite exampleSprite;
 boolean doAnimation;
+Block[][] blist;
 ArrayList<Block> blocklist = new ArrayList<Block>();
 ArrayList<Block> blocklist2 = new ArrayList<Block>();
 //INPUTS
@@ -76,12 +77,11 @@ public void setup() {
   /* size commented out by preprocessor */;
   //Set the title on the title bar
   surface.setTitle(titleText);
-
+  grid.generateLevel();
   //Load images used
   //bg = loadImage("images/chess.jpg");
   bg = loadImage("images/werksugvfuywegg.jpg");
   bg.resize(800,600);
-
   PImage p1image = loadImage("images/x_wood.png");
   p1image.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
   PImage p2image = loadImage("images/spook.png");
@@ -89,7 +89,7 @@ public void setup() {
   player1 = new Player(p1image);
   player2 = new Player(p2image,maximumx-1,maximumy-1);
   endScreen = loadImage("images/youwin.png");
-
+  Block[][] blist = grid.getBList();
   // Load a soundfile from the /data folder of the sketch and play it back
   // song = new SoundFile(this, "sounds/Lenny_Kravitz_Fly_Away.mp3");
   // song.play();
@@ -177,6 +177,12 @@ public void keyPressed(){
         move = false;
       }
     }
+    Block b = blist[x][y];
+    if (b != null){
+      if (b.getLocation().equals(loc)){
+        move = false;
+      }
+    }
     //shift the player1 picture up in the 2D array
     if (move == true) {
       player1.setX(x);
@@ -190,12 +196,12 @@ public void keyPressed(){
 
   } //end player1movement
   if (keyCode == ekey && !(grid.hasMark(player1.getLocation()) == true)) {
-    PImage wall = loadImage("images/bricks.jpg");
+    PImage wall = loadImage("images/balloon.png");
     wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     GridLocation loc = player1.getLocation();
     grid.setMark("B", loc);
     grid.setTileImage(loc, wall);
-    blocklist.add(new Block(wall,loc));
+    blocklist.add(new Block(wall,loc,"Balloon"));
     if (blocklist.size() > 3){
       Block b = blocklist.get(0);
       grid.removeMark(b.getLocation());
@@ -241,6 +247,12 @@ public void keyPressed(){
         move = false;
       }
     }
+    Block b = blist[x][y];
+    if (b != null){
+      if (b.getLocation().equals(loc)){
+        move = false;
+      }
+    }
       if (move == true) {
       player2.setX(x);
       player2.setY(y);
@@ -248,12 +260,12 @@ public void keyPressed(){
     }
   } //end Player2movement
      if (keyCode == space && !(grid.hasMark(player2.getLocation()) == true)) {
-    PImage wall = loadImage("images/fireblu.png ");
+    PImage wall = loadImage("images/balloon.png");
     wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     GridLocation loc = player2.getLocation();
     grid.setMark("B", loc);
     grid.setTileImage(loc, wall);
-    blocklist2.add(new Block(wall,loc));
+    blocklist2.add(new Block(wall,loc,"Balloon"));
     if (blocklist2.size() > 3){
       Block b = blocklist2.get(0);
       grid.removeMark(b.getLocation());
@@ -312,12 +324,22 @@ public void updateScreen(){
   grid.setTileImage(player1Loc, player1.getImage());
     GridLocation player2loc = new GridLocation(player2.getX(), player2.getY());
     grid.setTileImage(player2loc,player2.getImage());
+    blist = grid.getBList();
+    for (int x = 0; x < grid.getNumRows(); x++){
+      for (int y = 0; y < grid.getNumCols(); y++){
+        Block b = blist[x][y];
+        if (b != null){
+        GridLocation bloc = b.getLocation();
+        grid.setTileImage(bloc,b.getImage());
+        }
+      }
+    }
   for (int i = 0; i < blocklist.size(); i++){
     Block b = blocklist.get(i);
     grid.setTileImage(b.getLocation(),b.getImage());
   }
     for (int i = 0; i < blocklist2.size(); i++){
-    Block b = blocklist.get(i);
+    Block b = blocklist2.get(i);
     grid.setTileImage(b.getLocation(),b.getImage());
   }
   //Loop through all the Tiles and display its images/sprites
@@ -537,23 +559,37 @@ public class Block {
 
     private GridLocation loc;
     private PImage Pi;
-
+    private String type;
     public Block(PImage P){
-        this(P,0,0);
+        this(P,0,0,"Indestructible");
     }
     public Block(PImage P, GridLocation l){
         Pi = P;
         loc = l;
     }
+    public Block(PImage P, GridLocation l, String t){
+        Pi = P;
+        loc = l;
+        type = t;
+    }
     public Block(PImage P, int x, int y){
         Pi = P;
         loc = new GridLocation(x,y);
+    }
+    public Block(PImage P, int x, int y, String t){
+        Pi = P;
+        loc = new GridLocation(x,y);
+        type = t;
     }
     public GridLocation getLocation(){
         return loc;
     }
     public PImage getImage(){
         return Pi;
+    }
+    public boolean isDestructible(){
+        if (type.equals("Indestructible")) return true;
+        return false;
     }
     public void updateLocation(GridLocation l){
         loc = l;
@@ -573,10 +609,23 @@ public class Block {
  */
 
 public class Grid{
-  
   private int rows;
   private int cols;
   private GridTile[][] board;
+  private String[][] template = {
+    {"x","x","","","","","","","","","","x","x"},
+    {"x","▉","","▉","","▉","","▉","","▉","","▉","x"},
+    {"x","","","","","","","","","","","","x"},
+    {"","▉","","▉","","▉","","▉","","▉","","▉",""},
+    {"","","","","","","","","","","","",""},
+    {"","▉","","▉","","▉","","▉","","▉","","▉",""},
+    {"","","","","","","","","","","","",""},
+    {"","▉","","▉","","▉","","▉","","▉","","▉",""},
+    {"x","","","","","","","","","","","","x"},
+    {"x","▉","","▉","","▉","","▉","","▉","","▉","x"},
+    {"x","x","","","","","","","","","","x","x"}
+  };
+  private Block[][] blocklist;
   
 
   //Grid constructor that will create a Grid with the specified number of rows and cols
@@ -584,6 +633,7 @@ public class Grid{
     this.rows = rows;
     this.cols = cols;
     board = new GridTile[rows][cols];
+    blocklist = new Block[rows][cols];
     
     for(int r=0; r<rows; r++){
       for(int c=0; c<cols; c++){
@@ -592,12 +642,32 @@ public class Grid{
     }
   }
 
+  public void generateLevel()
+  {
+    PImage wall = loadImage("images/bricks.jpg");
+    wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+    PImage fire = loadImage("images/fireblu.png");
+    fire.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+    for (int x = 0; x < rows; x++){
+      for (int y = 0; y < cols; y++){
+        if (template[x][y].equals("") && Math.random() < 0.90f){
+
+          blocklist[x][y] = new Block(fire,x,y,"Fire");
+        }
+        else if (template[x][y].equals("▉")){
+          blocklist[x][y] = new Block(wall,x,y,"Indestructible");
+        }
+      }
+    }
+  }
   // Default Grid constructor that creates a 3x3 Grid  
   public Grid(){
      this(3,3);
   }
 
- 
+  public Block[][] getBList(){
+    return blocklist;
+  }
   // Method that Assigns a String mark to a location in the Grid.  
   // This mark is not necessarily visible, but can help in tracking
   // what you want recorded at each GridLocation.
@@ -1854,6 +1924,7 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     private int posx;
     private int posy;
     private PImage Pi;
+    private boolean isAlive;
 
     public Player(PImage P){
         this(P,0,0);
@@ -1862,6 +1933,7 @@ public class Player{    //Consider having Player extend from AnimatedSprite
         this.Pi = P;
         this.posx = x;
         this.posy = y;
+        this.isAlive = true;
     }
     public PImage getImage(){
         return Pi;

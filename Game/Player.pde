@@ -3,6 +3,7 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     private int posx;
     private int posy;
     private PImage Pi;
+    private boolean isAlive;
 
     public Player(PImage P){
         this(P,0,0);
@@ -11,6 +12,7 @@ public class Player{    //Consider having Player extend from AnimatedSprite
         this.Pi = P;
         this.posx = x;
         this.posy = y;
+        this.isAlive = true;
     }
     public PImage getImage(){
         return Pi;

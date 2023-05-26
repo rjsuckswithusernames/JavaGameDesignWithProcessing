@@ -9,8 +9,8 @@
 //GAME VARIABLES
 private int msElapsed = 0;
 
-int maximumx = 8;
-int maximumy = 8;
+int maximumx = 11;
+int maximumy = 13;
 Grid grid = new Grid(maximumx,maximumy);
 PImage bg;
 
@@ -23,6 +23,7 @@ String titleText = "Puzzle game";
 String extraText = "real";
 AnimatedSprite exampleSprite;
 boolean doAnimation;
+Block[][] blist;
 ArrayList<Block> blocklist = new ArrayList<Block>();
 ArrayList<Block> blocklist2 = new ArrayList<Block>();
 //INPUTS
@@ -52,12 +53,11 @@ void setup() {
   size(800, 600);
   //Set the title on the title bar
   surface.setTitle(titleText);
-
+  grid.generateLevel();
   //Load images used
   //bg = loadImage("images/chess.jpg");
   bg = loadImage("images/werksugvfuywegg.jpg");
   bg.resize(800,600);
-
   PImage p1image = loadImage("images/x_wood.png");
   p1image.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
   PImage p2image = loadImage("images/spook.png");
@@ -65,7 +65,7 @@ void setup() {
   player1 = new Player(p1image);
   player2 = new Player(p2image,maximumx-1,maximumy-1);
   endScreen = loadImage("images/youwin.png");
-
+  Block[][] blist = grid.getBList();
   // Load a soundfile from the /data folder of the sketch and play it back
   // song = new SoundFile(this, "sounds/Lenny_Kravitz_Fly_Away.mp3");
   // song.play();
@@ -153,6 +153,12 @@ void keyPressed(){
         move = false;
       }
     }
+    Block b = blist[x][y];
+    if (b != null){
+      if (b.getLocation().equals(loc)){
+        move = false;
+      }
+    }
     //shift the player1 picture up in the 2D array
     if (move == true) {
       player1.setX(x);
@@ -166,12 +172,12 @@ void keyPressed(){
 
   } //end player1movement
   if (keyCode == ekey && !(grid.hasMark(player1.getLocation()) == true)) {
-    PImage wall = loadImage("images/bricks.jpg");
+    PImage wall = loadImage("images/balloon.png");
     wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     GridLocation loc = player1.getLocation();
     grid.setMark("B", loc);
     grid.setTileImage(loc, wall);
-    blocklist.add(new Block(wall,loc));
+    blocklist.add(new Block(wall,loc,"Balloon"));
     if (blocklist.size() > 3){
       Block b = blocklist.get(0);
       grid.removeMark(b.getLocation());
@@ -217,6 +223,12 @@ void keyPressed(){
         move = false;
       }
     }
+    Block b = blist[x][y];
+    if (b != null){
+      if (b.getLocation().equals(loc)){
+        move = false;
+      }
+    }
       if (move == true) {
       player2.setX(x);
       player2.setY(y);
@@ -224,12 +236,12 @@ void keyPressed(){
     }
   } //end Player2movement
      if (keyCode == space && !(grid.hasMark(player2.getLocation()) == true)) {
-    PImage wall = loadImage("images/fireblu.png ");
+    PImage wall = loadImage("images/balloon.png");
     wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     GridLocation loc = player2.getLocation();
     grid.setMark("B", loc);
     grid.setTileImage(loc, wall);
-    blocklist2.add(new Block(wall,loc));
+    blocklist2.add(new Block(wall,loc,"Balloon"));
     if (blocklist2.size() > 3){
       Block b = blocklist2.get(0);
       grid.removeMark(b.getLocation());
@@ -288,12 +300,22 @@ public void updateScreen(){
   grid.setTileImage(player1Loc, player1.getImage());
     GridLocation player2loc = new GridLocation(player2.getX(), player2.getY());
     grid.setTileImage(player2loc,player2.getImage());
+    blist = grid.getBList();
+    for (int x = 0; x < grid.getNumRows(); x++){
+      for (int y = 0; y < grid.getNumCols(); y++){
+        Block b = blist[x][y];
+        if (b != null){
+        GridLocation bloc = b.getLocation();
+        grid.setTileImage(bloc,b.getImage());
+        }
+      }
+    }
   for (int i = 0; i < blocklist.size(); i++){
     Block b = blocklist.get(i);
     grid.setTileImage(b.getLocation(),b.getImage());
   }
     for (int i = 0; i < blocklist2.size(); i++){
-    Block b = blocklist.get(i);
+    Block b = blocklist2.get(i);
     grid.setTileImage(b.getLocation(),b.getImage());
   }
   //Loop through all the Tiles and display its images/sprites

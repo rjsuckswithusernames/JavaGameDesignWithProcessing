@@ -23,7 +23,8 @@ String titleText = "Puzzle game";
 String extraText = "real";
 AnimatedSprite exampleSprite;
 boolean doAnimation;
-
+ArrayList<Block> blocklist = new ArrayList<Block>();
+ArrayList<Block> blocklist2 = new ArrayList<Block>();
 //INPUTS
 
 //P1
@@ -100,8 +101,8 @@ void draw() {
 
   checkExampleAnimation();
   
-  msElapsed +=100;
-  grid.pause(100);
+  msElapsed +=(1/60);
+  grid.pause(1/60);
 
 }
 
@@ -117,51 +118,125 @@ void keyPressed(){
   if(keyCode == wkey || keyCode == akey || keyCode == skey || keyCode == dkey){
     //check case where out of bounds
     //change the field for player1Row
-
+    int x = player1.getX();
+    int y = player1.getY();
    if (keyCode == wkey && player1.getX() > 0 && !(player1.getX()-1 == player2.getX() && player1.getY()  == player2.getY()) ){
-    player1.lowerX();
+    x--;
    }
    if (keyCode == akey && player1.getY()  > 0 && !(player1.getY()-1 == player2.getY() && player1.getX() == player2.getX())) {
-    player1.lowerY();
+    y--;
    }
    if (keyCode == skey && player1.getX() < grid.getNumRows()-1 && !(player1.getX()+1 == player2.getX() && player1.getY()  == player2.getY())) {
-    player1.raiseX();
+    x++;
    }
    if (keyCode == dkey && player1.getY() < grid.getNumCols()-1 && !(player1.getY()+1 == player2.getY() && player1.getX() == player2.getX())) {
-    player1.raiseY();
+    y++;
    }
-    System.out.println(player1.getX());
-    System.out.println(player1.getY());
+    System.out.println(x);
+    System.out.println(y);
+    boolean move = true;
+    GridLocation loc = new GridLocation(x, y);
+    if (player2.collisionCheck(loc) == true) {
+      move = false;
+    }
+    for (int i = 0; i < blocklist.size(); i++){
+      Block b = blocklist.get(i);
+      System.out.println(b.getLocation());
+      if (b.getLocation().equals(loc)){
+        move = false;
+      }
+    }
+    for (int i = 0; i < blocklist2.size(); i++){
+      Block b = blocklist2.get(i);
+      System.out.println(b.getLocation());
+      if (b.getLocation().equals(loc)){
+        move = false;
+      }
+    }
     //shift the player1 picture up in the 2D array
-    GridLocation loc = new GridLocation(player1.getX(), player1.getY());
-    grid.setTileImage(loc,player1.getImage());
+    if (move == true) {
+      player1.setX(x);
+      player1.setY(y);
+      grid.setTileImage(loc,player1.getImage());
+    }
+    
 
     
     //eliminate the picture from the old location
 
   } //end player1movement
-
+  if (keyCode == ekey && !(grid.hasMark(player1.getLocation()) == true)) {
+    PImage wall = loadImage("images/bricks.jpg");
+    wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+    GridLocation loc = player1.getLocation();
+    grid.setMark("B", loc);
+    grid.setTileImage(loc, wall);
+    blocklist.add(new Block(wall,loc));
+    if (blocklist.size() > 3){
+      Block b = blocklist.get(0);
+      grid.removeMark(b.getLocation());
+      blocklist.remove(b);
+    }
+    System.out.println("Mark Placed");
+  }
   //Player2 movement
+
   if(keyCode == up || keyCode == left || keyCode == down || keyCode == right){
+    int x = player2.getX();
+    int y = player2.getY();
    if (keyCode == up && player2.getX() > 0 && !(player2.getX()-1 == player1.getX() && player1.getY()  == player2.getY()) ){
-    player2.lowerX();
+    x--;
    }
    if (keyCode == left && player2.getY()  > 0 && !(player2.getY()-1 == player1.getY() && player1.getX() == player2.getX())) {
-    player2.lowerY();
+    y--;
    }
    if (keyCode == down && player2.getX() < grid.getNumRows()-1 && !(player2.getX()+1 == player1.getX() && player1.getY()  == player2.getY())) {
-    player2.raiseX();
+    x++;
    }
    if (keyCode == right && player2.getY() < grid.getNumCols()-1 && !(player2.getY()+1 == player1.getY() && player1.getX() == player2.getX())) {
-    player2.raiseY();
+    y++;
    }
-    System.out.println(player2.getX());
-    System.out.println(player2.getY());
-    //shift the player1 picture up in the 2D array
-    GridLocation loc = new GridLocation(player2.getX(), player2.getY());
-    grid.setTileImage(loc,player2.getImage());
+    System.out.println(x);
+    System.out.println(y);
+    boolean move = true;
+    GridLocation loc = new GridLocation(x, y);
+    if (player1.collisionCheck(loc) == true) {
+      move = false;
+    }
+    for (int i = 0; i < blocklist.size(); i++){
+      Block b = blocklist.get(i);
+      System.out.println(b.getLocation());
+      if (b.getLocation().equals(loc)){
+        move = false;
+      }
+    }
+    for (int i = 0; i < blocklist2.size(); i++){
+      Block b = blocklist2.get(i);
+      System.out.println(b.getLocation());
+      if (b.getLocation().equals(loc)){
+        move = false;
+      }
+    }
+      if (move == true) {
+      player2.setX(x);
+      player2.setY(y);
+      grid.setTileImage(loc,player2.getImage());
+    }
   } //end Player2movement
-    
+     if (keyCode == space && !(grid.hasMark(player2.getLocation()) == true)) {
+    PImage wall = loadImage("images/fireblu.png ");
+    wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+    GridLocation loc = player2.getLocation();
+    grid.setMark("B", loc);
+    grid.setTileImage(loc, wall);
+    blocklist2.add(new Block(wall,loc));
+    if (blocklist2.size() > 3){
+      Block b = blocklist2.get(0);
+      grid.removeMark(b.getLocation());
+      blocklist2.remove(b);
+    }
+    System.out.println("Mark Placed");
+  } 
 
   }
 
@@ -179,7 +254,7 @@ void keyPressed(){
     //Toggle the animation on & off
     doAnimation = !doAnimation;
     System.out.println("doAnimation: " + doAnimation);
-    grid.setMark("X",grid.getGridLocation());
+    //grid.setMark("X",grid.getGridLocation());
     
   }
 
@@ -213,7 +288,14 @@ public void updateScreen(){
   grid.setTileImage(player1Loc, player1.getImage());
     GridLocation player2loc = new GridLocation(player2.getX(), player2.getY());
     grid.setTileImage(player2loc,player2.getImage());
-
+  for (int i = 0; i < blocklist.size(); i++){
+    Block b = blocklist.get(i);
+    grid.setTileImage(b.getLocation(),b.getImage());
+  }
+    for (int i = 0; i < blocklist2.size(); i++){
+    Block b = blocklist.get(i);
+    grid.setTileImage(b.getLocation(),b.getImage());
+  }
   //Loop through all the Tiles and display its images/sprites
   
 

@@ -36,7 +36,7 @@ public class Grid{
   // what you want recorded at each GridLocation.
   public void setMark(String mark, GridLocation loc){
     board[loc.getRow()][loc.getCol()].setNewMark(mark);
-    printGrid();
+    //printGrid();
   } 
 
   // Method that Assigns a String mark to a location in the Grid.  
@@ -48,6 +48,17 @@ public class Grid{
     int col = loc.getCol();
     boolean isGoodClick = board[row][col].setNewMark(mark);
     printGrid();
+    return isGoodClick;
+  }
+  public String getMark(GridLocation loc){
+    return board[loc.getRow()][loc.getCol()].getMark();
+  }
+  public boolean removeMark(GridLocation loc){
+    boolean isGoodClick = board[loc.getRow()][loc.getCol()].removeMark();
+    return isGoodClick;
+  }
+  public boolean hasMark(GridLocation loc){
+    boolean isGoodClick = board[loc.getRow()][loc.getCol()].getMark() != " ";
     return isGoodClick;
   } 
   

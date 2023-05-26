@@ -21,6 +21,13 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     public int getY(){
         return posy;
     }
+    public GridLocation getLocation(){
+        return new GridLocation(posx,posy);
+    }
+    public void updateLocation(GridLocation l){
+        posx = l.getRow();
+        posy = l.getCol();
+    }
     public void setImage(PImage P){
         Pi = P;
     }
@@ -42,8 +49,8 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     public void raiseY(){
         posy++;
     }
-    public boolean collisionCheck(int newx, int newy, Player p2){
-        if (newx == p2.getX() && newy == p2.getY())
+    public boolean collisionCheck(GridLocation loc){
+        if (new GridLocation(posx,posy) == loc)
         {
             return true;
         }

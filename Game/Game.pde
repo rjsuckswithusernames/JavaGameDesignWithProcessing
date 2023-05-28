@@ -11,7 +11,9 @@ private int msElapsed = 0;
 
 int maximumx = 11;
 int maximumy = 13;
-public Grid grid = new Grid(maximumx,maximumy);
+int lastTime = 0;
+int delta = 0;
+protected Grid grid = new Grid(maximumx,maximumy);
 PImage bg;
 
 boolean secret = false;
@@ -23,9 +25,16 @@ String titleText = "Fire Fighters";
 String extraText = "real";
 AnimatedSprite exampleSprite;
 boolean doAnimation;
-Block[][] blist;
-ArrayList<Block> blocklist = new ArrayList<Block>();
-ArrayList<Block> blocklist2 = new ArrayList<Block>();
+Block[][] blocklist;
+protected ArrayList<Block> balloonlist = new ArrayList<Block>();
+protected int[][] dirs = 
+{
+  {-1,0}, //up
+  {1,0}, //down
+  {0,-1}, //left
+  {0,1} //right
+};
+
 //INPUTS
 
 //P1
@@ -48,7 +57,7 @@ int space = 32;
 
 //Required Processing method that gets run once
 void setup() {
-
+  frameRate(30);
   //Match the screen size to the background image size
   size(800, 600);
   //Set the title on the title bar
@@ -65,7 +74,7 @@ void setup() {
   player1 = new Player(p1image);
   player2 = new Player(p2image,maximumx-1,maximumy-1);
   endScreen = loadImage("images/youwin.png");
-  Block[][] blist = grid.getBList();
+  Block[][] blocklist = grid.getBList();
   // Load a soundfile from the /data folder of the sketch and play it back
   // song = new SoundFile(this, "sounds/Lenny_Kravitz_Fly_Away.mp3");
   // song.play();
@@ -84,7 +93,7 @@ void setup() {
 //Required Processing method that automatically loops
 //(Anything drawn on the screen should be called from here)
 void draw() {
-
+  delta = millis() - lastTime;
 
   updateTitleBar();
 
@@ -100,10 +109,17 @@ void draw() {
   }
 
   checkExampleAnimation();
-  
-  msElapsed +=(1/60);
-  grid.pause(1/60);
-  
+  //println(delta);
+  for (int i = 0; i < balloonlist.size(); i++){
+    if (balloonlist.get(i) != null){
+      Block b = balloonlist.get(i);
+      b.update(delta);
+    }
+
+  }
+  msElapsed +=(1/30);
+  //grid.pause(1/30);
+  lastTime = millis();
 }
 
 //Known Processing method that automatically will run whenever a key is pressed
@@ -139,21 +155,8 @@ void keyPressed(){
     if (player2.collisionCheck(loc) == true) {
       move = false;
     }
-    for (int i = 0; i < blocklist.size(); i++){
-      Block b = blocklist.get(i);
-      System.out.println(b.getLocation());
-      if (b.getLocation().equals(loc)){
-        move = false;
-      }
-    }
-    for (int i = 0; i < blocklist2.size(); i++){
-      Block b = blocklist2.get(i);
-      System.out.println(b.getLocation());
-      if (b.getLocation().equals(loc)){
-        move = false;
-      }
-    }
-    Block b = blist[x][y];
+
+    Block b = blocklist[x][y];
     if (b != null){
       if (b.getLocation().equals(loc)){
         move = false;
@@ -171,7 +174,8 @@ void keyPressed(){
     //eliminate the picture from the old location
 
   } //end player1movement
-  if (keyCode == ekey && !(grid.hasMark(player1.getLocation()) == true)) {
+  if (keyCode == ekey && !(blocklist[player1.getX()][player1.getY()] != null && blocklist[player1.getX()][player1.getY()].getLocation().equals(player1.getLocation())) && player1.getBombs() < player1.getMaxBombs()) {
+    player1.addBomb();
     PImage wall = loadImage("images/balloon.png");
     wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     GridLocation loc = player1.getLocation();
@@ -179,11 +183,10 @@ void keyPressed(){
     grid.setTileImage(loc, wall);
     Block b = new Block(wall,loc,"Balloon",player1);
     grid.addBlock(b);
-    System.out.println(blist);
-    blocklist.add(b);
-    grid.Explode(b);
-    grid.removeMark(loc);
-    blocklist.remove(b);
+    System.out.println(blocklist);
+    balloonlist.add(b);
+    //b.Explode();
+
     
 
     System.out.println("Mark Placed");
@@ -212,21 +215,7 @@ void keyPressed(){
     if (player1.collisionCheck(loc) == true) {
       move = false;
     }
-    for (int i = 0; i < blocklist.size(); i++){
-      Block b = blocklist.get(i);
-      System.out.println(b.getLocation());
-      if (b.getLocation().equals(loc)){
-        move = false;
-      }
-    }
-    for (int i = 0; i < blocklist2.size(); i++){
-      Block b = blocklist2.get(i);
-      System.out.println(b.getLocation());
-      if (b.getLocation().equals(loc)){
-        move = false;
-      }
-    }
-    Block b = blist[x][y];
+    Block b = blocklist[x][y];
     if (b != null){
       if (b.getLocation().equals(loc)){
         move = false;
@@ -238,22 +227,22 @@ void keyPressed(){
       grid.setTileImage(loc,player2.getImage());
     }
   } //end Player2movement
-     if (keyCode == space && !(grid.hasMark(player2.getLocation()) == true)) {
+  if (keyCode == space && !(blocklist[player2.getX()][player2.getY()] != null && blocklist[player2.getX()][player2.getY()].getLocation().equals(player2.getLocation())) && player2.getBombs() < player2.getMaxBombs()) {
+    player2.addBomb();
     PImage wall = loadImage("images/balloon.png");
     wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     GridLocation loc = player2.getLocation();
     grid.setMark("B", loc);
     grid.setTileImage(loc, wall);
-    Block b = new Block(wall,loc,"Balloon",player1);
+    Block b = new Block(wall,loc,"Balloon",player2);
     grid.addBlock(b);
-    blocklist2.add(b);
-    if (blocklist2.size() > 3){
-      Block h = blocklist2.get(0);
-      grid.removeMark(h.getLocation());
-      blocklist2.remove(h);
-    }
+    System.out.println(blocklist);
+    balloonlist.add(b);
+
+    
+
     System.out.println("Mark Placed");
-  } 
+  }
 
   }
 
@@ -305,24 +294,17 @@ public void updateScreen(){
   grid.setTileImage(player1Loc, player1.getImage());
     GridLocation player2loc = new GridLocation(player2.getX(), player2.getY());
     grid.setTileImage(player2loc,player2.getImage());
-    blist = grid.getBList();
+    blocklist = grid.getBList();
     for (int x = 0; x < grid.getNumRows(); x++){
       for (int y = 0; y < grid.getNumCols(); y++){
-        Block b = blist[x][y];
+        Block b = blocklist[x][y];
         if (b != null){
         GridLocation bloc = b.getLocation();
         grid.setTileImage(bloc,b.getImage());
         }
       }
     }
-  for (int i = 0; i < blocklist.size(); i++){
-    Block b = blocklist.get(i);
-    grid.setTileImage(b.getLocation(),b.getImage());
-  }
-    for (int i = 0; i < blocklist2.size(); i++){
-    Block b = blocklist2.get(i);
-    grid.setTileImage(b.getLocation(),b.getImage());
-  }
+
   //Loop through all the Tiles and display its images/sprites
   
 

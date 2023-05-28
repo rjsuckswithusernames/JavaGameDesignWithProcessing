@@ -4,11 +4,20 @@
  * Last Edit: 5/24/2023
  * Edited to show all Images & Sprites
  */
-
+import java.util.List;
+import java.util.ArrayList;
 public class Grid{
   private int rows;
   private int cols;
   private GridTile[][] board;
+  private int[][] dirs = 
+  {
+    {-1,0}, //up
+    {1,0}, //down
+    {0,-1}, //left
+    {0,1} //right
+  };
+
   private String[][] template = {
     {"x","x","","","","","","","","","","x","x"},
     {"x","▉","","▉","","▉","","▉","","▉","","▉","x"},
@@ -22,6 +31,7 @@ public class Grid{
     {"x","▉","","▉","","▉","","▉","","▉","","▉","x"},
     {"x","x","","","","","","","","","","x","x"}
   };
+  //Formula for map generation, with x giving an empty space and squares creating indestructible walls.
   private Block[][] blocklist;
   
 
@@ -52,11 +62,72 @@ public class Grid{
           blocklist[x][y] = new Block(fire,x,y,"Fire");
         }
         else if (template[x][y].equals("▉")){
-          blocklist[x][y] = new Block(wall,x,y,"Indestructible");
+          blocklist[x][y] = new Block(wall,x,y,"Wall");
         }
       }
     }
   }
+
+  public void addBlock(Block b){
+    GridLocation loc = b.getLocation();
+    int x = loc.getRow();
+    int y = loc.getCol();
+    blocklist[x][y] = b;
+    System.out.println(b);
+    System.out.println(blocklist[x][y]);
+  }
+
+  public void Explode(Block b){
+    GridLocation bloc = b.getLocation();
+    if (b.isAlive() == false){
+      return;
+    }
+    b.Kill();
+    Player owner = b.getOwner();
+    int radius;
+    if (owner == null){
+      radius = 1;
+    } else {
+      radius = owner.getExplosionRadius();
+    }
+    for (int[] dir : dirs){
+      for(int i = 0; i <= radius; i++){
+        int x = b.getX() + dir[0] * i;
+        int y = b.getY() + dir[1] * i;
+        if (x < 0 || x >= this.getNumRows() || y < 0 || y >= this.getNumCols()){
+          continue;
+        }
+        Block cell = blocklist[x][y];
+        //System.out.println(cell);
+        if (cell == null)
+        {
+          continue;
+        }
+          if (cell.getType().equals("Fire")){
+            blocklist[x][y] = null;
+            break;
+          }
+          if (cell.getType().equals("Wall")){
+            break;
+          }
+          if (cell.getType().equals("Balloon")){
+            //System.out.println(cell.isAlive());
+            if (cell.isAlive() == true){
+              this.Explode(blocklist[x][y]);
+            }
+          }
+          /*
+          GridLocation loc = new GridLocation(x,y);
+          if (loc = owner.getLocation()){
+            hurtPlayer();
+          }
+          */
+        
+      }
+    }
+    blocklist[b.getX()][b.getY()] = null;
+  }
+  
   // Default Grid constructor that creates a 3x3 Grid  
   public Grid(){
      this(3,3);

@@ -11,7 +11,7 @@ private int msElapsed = 0;
 
 int maximumx = 11;
 int maximumy = 13;
-Grid grid = new Grid(maximumx,maximumy);
+public Grid grid = new Grid(maximumx,maximumy);
 PImage bg;
 
 boolean secret = false;
@@ -19,7 +19,7 @@ boolean debounce = false;
 Player player1;
 Player player2;
 PImage endScreen;
-String titleText = "Puzzle game";
+String titleText = "Fire Fighters";
 String extraText = "real";
 AnimatedSprite exampleSprite;
 boolean doAnimation;
@@ -103,7 +103,7 @@ void draw() {
   
   msElapsed +=(1/60);
   grid.pause(1/60);
-
+  
 }
 
 //Known Processing method that automatically will run whenever a key is pressed
@@ -177,12 +177,15 @@ void keyPressed(){
     GridLocation loc = player1.getLocation();
     grid.setMark("B", loc);
     grid.setTileImage(loc, wall);
-    blocklist.add(new Block(wall,loc,"Balloon"));
-    if (blocklist.size() > 3){
-      Block b = blocklist.get(0);
-      grid.removeMark(b.getLocation());
-      blocklist.remove(b);
-    }
+    Block b = new Block(wall,loc,"Balloon",player1);
+    grid.addBlock(b);
+    System.out.println(blist);
+    blocklist.add(b);
+    grid.Explode(b);
+    grid.removeMark(loc);
+    blocklist.remove(b);
+    
+
     System.out.println("Mark Placed");
   }
   //Player2 movement
@@ -241,11 +244,13 @@ void keyPressed(){
     GridLocation loc = player2.getLocation();
     grid.setMark("B", loc);
     grid.setTileImage(loc, wall);
-    blocklist2.add(new Block(wall,loc,"Balloon"));
+    Block b = new Block(wall,loc,"Balloon",player1);
+    grid.addBlock(b);
+    blocklist2.add(b);
     if (blocklist2.size() > 3){
-      Block b = blocklist2.get(0);
-      grid.removeMark(b.getLocation());
-      blocklist2.remove(b);
+      Block h = blocklist2.get(0);
+      grid.removeMark(h.getLocation());
+      blocklist2.remove(h);
     }
     System.out.println("Mark Placed");
   } 

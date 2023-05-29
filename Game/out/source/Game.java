@@ -4,6 +4,8 @@ import processing.data.*;
 import processing.event.*;
 import processing.opengl.*;
 
+import processing.sound.*;
+import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
 import java.awt.Color;
@@ -30,7 +32,7 @@ public class Game extends PApplet {
  */
 
 
-//import processing.sound.*;
+
 
 //GAME VARIABLES
 private int msElapsed = 0;
@@ -42,8 +44,6 @@ int delta = 0;
 protected Grid grid = new Grid(maximumx,maximumy);
 PImage bg;
 
-boolean secret = false;
-boolean debounce = false;
 Player player1;
 Player player2;
 PImage endScreen;
@@ -52,7 +52,6 @@ String extraText = "real";
 AnimatedSprite exampleSprite;
 boolean doAnimation;
 Block[][] blocklist;
-protected ArrayList<Block> balloonlist = new ArrayList<Block>();
 protected int[][] dirs = 
 {
   {-1,0}, //up
@@ -60,7 +59,26 @@ protected int[][] dirs =
   {0,-1}, //left
   {0,1} //right
 };
+protected String[] powers = {
+  //COMMON ITEMS
+  //"Raincoat", // +1 Life. 
+  //"Hose", // +1 to Range.
+  //"SpareBalloon", //+1 to MaxBalloons.
+  //"Raincoat",
+  //"Hose",
+  //"SpareBalloon",
+  //"Raincoat",
+  //"Hose",
+  //"SpareBalloon",
+  //RARE ITEMS
+  //"PiercingBalloon", //Allows Balloon explosions to pierce through walls.
+  //"HardHat", //Makes you immune to your own balloon explosions.
+  "BoxingGlove" //Allows you to push your own bombs.
+};
 
+//SOUNDS
+
+SoundFile splash;
 //INPUTS
 
 //P1
@@ -104,6 +122,9 @@ public void setup() {
   // Load a soundfile from the /data folder of the sketch and play it back
   // song = new SoundFile(this, "sounds/Lenny_Kravitz_Fly_Away.mp3");
   // song.play();
+  //splash = new SoundFile(this,"sounds/splash.wav");
+
+  //splash.play();
 
   
   //Animation & Sprite setup
@@ -135,14 +156,18 @@ public void draw() {
   }
 
   checkExampleAnimation();
-  //println(delta);
-  for (int i = 0; i < balloonlist.size(); i++){
-    if (balloonlist.get(i) != null){
-      Block b = balloonlist.get(i);
-      b.update(delta);
+  println(delta);
+  for (int r = 0; r < blocklist.length; r++){
+    for (int c = 0; c < blocklist[r].length; c++){
+        if (blocklist[r][c] != null && blocklist[r][c].isAbleToUpdate() == true){
+        Block b = blocklist[r][c];
+        b.update(delta);
+      }
     }
 
   }
+  player1.update(delta);
+  player2.update(delta);
   msElapsed +=(1/30);
   //grid.pause(1/30);
   lastTime = millis();
@@ -157,7 +182,8 @@ public void keyPressed(){
   //What to do when a key is pressed?
   
   //player 1 movement
-  if(keyCode == wkey || keyCode == akey || keyCode == skey || keyCode == dkey){
+  if((keyCode == wkey || keyCode == akey || keyCode == skey || keyCode == dkey) && player1.getMoveTimer() <= 0){
+    blocklist = grid.getBList();
     //check case where out of bounds
     //change the field for player1Row
     int x = player1.getX();
@@ -174,31 +200,7 @@ public void keyPressed(){
    if (keyCode == dkey && player1.getY() < grid.getNumCols()-1 && !(player1.getY()+1 == player2.getY() && player1.getX() == player2.getX())) {
     y++;
    }
-    System.out.println(x);
-    System.out.println(y);
-    boolean move = true;
-    GridLocation loc = new GridLocation(x, y);
-    if (player2.collisionCheck(loc) == true) {
-      move = false;
-    }
-
-    Block b = blocklist[x][y];
-    if (b != null){
-      if (b.getLocation().equals(loc)){
-        move = false;
-      }
-    }
-    //shift the player1 picture up in the 2D array
-    if (move == true) {
-      player1.setX(x);
-      player1.setY(y);
-      grid.setTileImage(loc,player1.getImage());
-    }
-    
-
-    
-    //eliminate the picture from the old location
-
+    handleCollisions(x,y,player1,player2,keyCode);
   } //end player1movement
   if (keyCode == ekey && !(blocklist[player1.getX()][player1.getY()] != null && blocklist[player1.getX()][player1.getY()].getLocation().equals(player1.getLocation())) && player1.getBombs() < player1.getMaxBombs()) {
     player1.addBomb();
@@ -210,7 +212,6 @@ public void keyPressed(){
     Block b = new Block(wall,loc,"Balloon",player1);
     grid.addBlock(b);
     System.out.println(blocklist);
-    balloonlist.add(b);
     //b.Explode();
 
     
@@ -219,7 +220,8 @@ public void keyPressed(){
   }
   //Player2 movement
 
-  if(keyCode == up || keyCode == left || keyCode == down || keyCode == right){
+  if((keyCode == up || keyCode == left || keyCode == down || keyCode == right) && player2.getMoveTimer() <= 0){
+    blocklist = grid.getBList();
     int x = player2.getX();
     int y = player2.getY();
    if (keyCode == up && player2.getX() > 0 && !(player2.getX()-1 == player1.getX() && player1.getY()  == player2.getY()) ){
@@ -234,24 +236,7 @@ public void keyPressed(){
    if (keyCode == right && player2.getY() < grid.getNumCols()-1 && !(player2.getY()+1 == player1.getY() && player1.getX() == player2.getX())) {
     y++;
    }
-    System.out.println(x);
-    System.out.println(y);
-    boolean move = true;
-    GridLocation loc = new GridLocation(x, y);
-    if (player1.collisionCheck(loc) == true) {
-      move = false;
-    }
-    Block b = blocklist[x][y];
-    if (b != null){
-      if (b.getLocation().equals(loc)){
-        move = false;
-      }
-    }
-      if (move == true) {
-      player2.setX(x);
-      player2.setY(y);
-      grid.setTileImage(loc,player2.getImage());
-    }
+   handleCollisions(x,y,player2,player1,keyCode);
   } //end Player2movement
   if (keyCode == space && !(blocklist[player2.getX()][player2.getY()] != null && blocklist[player2.getX()][player2.getY()].getLocation().equals(player2.getLocation())) && player2.getBombs() < player2.getMaxBombs()) {
     player2.addBomb();
@@ -263,7 +248,6 @@ public void keyPressed(){
     Block b = new Block(wall,loc,"Balloon",player2);
     grid.addBlock(b);
     System.out.println(blocklist);
-    balloonlist.add(b);
 
     
 
@@ -390,8 +374,55 @@ public void moveSprites(){
 }
 
 //Method to handle the collisions between Sprites on the Screen
-public void handleCollisions(){
+public void handleCollisions(int x, int y, Player moving, Player opponent, int direction){
+    blocklist = grid.getBList();
+    boolean move = true;
+    GridLocation loc = new GridLocation(x, y);
+    if (opponent.collisionCheck(loc) == true) {
+      move = false;
+    }
 
+    Block b = blocklist[x][y];
+      if (b != null && b.getType().equals("Raincoat")){
+        moving.addLife();
+        blocklist[x][y] = null;
+      }
+      else if (b != null && b.getType().equals("Hose")){
+        moving.raiseExplosionRadius();
+        blocklist[x][y] = null;
+      }
+      else if (b != null && b.getType().equals("SpareBalloon")){
+        moving.raiseMaxBombs();
+        blocklist[x][y] = null;
+      }
+      else if (b != null && b.getType().equals("PiercingBalloon")){
+        moving.piercePowerup();
+        blocklist[x][y] = null;
+      }
+      else if (b != null && b.getType().equals("HardHat")){
+        moving.sdImmunePowerup();
+        blocklist[x][y] = null;
+      }
+      else if (b != null && b.getType().equals("BoxingGlove")){
+        moving.sdImmunePowerup();
+        blocklist[x][y] = null;
+      }
+      else if ((b != null && b.getLocation().equals(loc)) || (blocklist[moving.getX()][moving.getY()] != null && blocklist[moving.getX()][moving.getY()].getType().equals("Explosion"))){
+        move = false;
+        if (moving.canPush() == true && b != null && b.getLocation().equals(loc) && b.getType().equals("Balloon")){
+          Block movable = blocklist[x][y];
+          int dirx = x - moving.getX();
+          int diry = y - moving.getY();
+          movable.pushBomb(dirx,diry);
+        }
+      }
+    //shift the player1 picture up in the 2D array
+    if (move == true) {
+      moving.resetMoveTimer();
+      moving.setX(x);
+      moving.setY(y);
+      grid.setTileImage(loc,moving.getImage());
+    }
 
 }
 
@@ -544,6 +575,8 @@ public class AnimatedSprite extends Sprite{
   }
 
 }
+
+
 public class Block {
 
     private GridLocation loc;
@@ -551,7 +584,12 @@ public class Block {
     private String type;
     private boolean alive;
     private Player owner;
-    private int timer = 2000;
+    private int timer;
+    private int pushTimer;
+    private int dirx;
+    private int diry;
+    private boolean isPushed = false;
+    private boolean canUpdate = true;
     public Block(PImage P){
         this(P,new GridLocation(0,0),"Wall",null);
     }
@@ -568,12 +606,20 @@ public class Block {
     public Block(PImage P, int x, int y, String t){
         this(P,new GridLocation(x,y),t,null);
     }
+    public Block(PImage P, int x, int y, String t, Player o){
+      this(P,new GridLocation(x,y),t,o);
+    }
     public Block(PImage P, GridLocation l, String t, Player o){
         Pi = P;
         loc = l;
         type = t;
         owner = o;
         alive = true;
+        if (type.equals("Balloon")){
+           timer = 2000;
+        } else if (type.equals("Explosion")) {
+           timer = 300;
+        }
     }
     public int getX(){
         return loc.getRow();
@@ -593,6 +639,9 @@ public class Block {
     public String getType(){
         return type;
     }
+    public int getPushTimer(){
+      return pushTimer;
+    }
     public void Kill(){
         alive = false;
     }
@@ -604,28 +653,82 @@ public class Block {
         return false;
     }
     public void updateLocation(GridLocation l){
+      grid.updateBList(loc, l);
         loc = l;
+        
     }
     public void updateLocation(int x,int y){
+        grid.updateBList(loc, new GridLocation(x,y));
         loc = new GridLocation(x,y);
     }
     public void updateImage(PImage P){
         Pi = P;
     }
-public void update(double dt){
-    timer-=dt;
-    if (timer <= 0){
-        this.Explode();
+    public void resetPushTimer(){
+      pushTimer = 150;
     }
+    public boolean isAbleToUpdate(){
+      return canUpdate;
+    }
+public void update(double dt){
+  if (canUpdate == true){
+    if (this == null || this.alive == false){
+      Block[][] blocklist = grid.getBList();
+      blocklist[this.getX()][this.getY()] = null;
+      grid.removeMark(loc);
+      canUpdate = false;
+      return;
+    }
+    if (type.equals("Balloon")){
+      timer-=dt;
+        if (timer <= 0){
+          this.Explode();
+        }
+            if (pushTimer > 0){
+      pushTimer-=dt;
+    }
+    if (pushTimer <= 0){
+      if (isPushed == true){
+        pushBomb(dirx,diry);
+      }
+    }
+    } else if (type.equals("Explosion")){
+      timer-=dt;
+      if (timer <= 0){
+        Block[][] blocklist = grid.getBList();
+        
+        if (this.owner != null && Math.random() < .25f){
+          String pow = this.getRandomPower();
+          PImage powimage = loadImage("images/"+pow+".png");
+          powimage.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+          blocklist[this.getX()][this.getY()] = new Block(powimage,this.getLocation(),pow);
+        } else {
+          blocklist[this.getX()][this.getY()] = null;
+        }
+      }
+    }
+  }
+}
+
+public String getRandomPower(){
+    int rnd = new Random().nextInt(powers.length);
+    return powers[rnd];
 }
   public void Explode(){
+    this.Explode(false,false);
+  }
+    public void Explode(boolean p1cd, boolean p2cd){
+              isPushed = false;
+    PImage exp = loadImage("images/splash.png");
+    exp.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     Block[][] blocklist = grid.getBList();
     GridLocation loc = this.getLocation();
+    boolean p1hit = false;
+    boolean p2hit = false;
     if (this.isAlive() == false){
       return;
     }
     this.Kill();
-    Player owner = this.getOwner();
     int radius;
     if (owner == null){
       radius = 1;
@@ -643,34 +746,119 @@ public void update(double dt){
         //System.out.println(cell);
         if (cell == null)
         {
+          blocklist[x][y] = new Block(exp,x,y,"Explosion");
+                    GridLocation eloc = new GridLocation(x,y);
+          if (eloc.equals(player1.getLocation()) && !(player1 == owner && player1.selfHarm() != true)){
+            p1hit = true;
+          }
+          if (eloc.equals(player2.getLocation()) && !(player2 == owner && player2.selfHarm() != true)){
+            p2hit = true;
+          }
           continue;
+          
         }
+        
           if (cell.getType().equals("Fire")){
-            blocklist[x][y] = null;
+            blocklist[x][y] = new Block(exp,x,y,"Explosion", owner);
+            if (owner.canPierce() == true){
+              continue;
+            }
             break;
           }
           if (cell.getType().equals("Wall")){
+            if (owner.canPierce() == true){
+              continue;
+            }
             break;
+          }
+
+          GridLocation eloc = new GridLocation(x,y);
+          if (eloc.equals(player1.getLocation()) && !(player1 == owner && player1.selfHarm() != true)){
+            p1hit = true;
+          }
+          if (eloc.equals(player2.getLocation())  && !(player2 == owner && player2.selfHarm() != true)){
+            p2hit = true;
+          }
+          if (p1hit == true && p1cd == false){
+            player1.hurtPlayer();
+            p1cd = true;
+          }
+          if (p2hit == true && p2cd == false){
+            player2.hurtPlayer();
+            p1cd = true;
           }
           if (cell.getType().equals("Balloon")){
             //System.out.println(cell.isAlive());
             if (cell.isAlive() == true){
-              blocklist[x][y].Explode();
+              blocklist[x][y].Explode(p1hit,p2hit);
             }
           }
-          /*
-          GridLocation ploc = new GridLocation(x,y);
-          if (ploc = owner.getLocation()){
-            hurtPlayer();
-          }
-          */
+
         
       }
     }
+    //splash.play();
+    if (p1hit == true && p1cd == false){
+      player1.hurtPlayer();
+      p1cd = true;
+    }
+    if (p2hit == true && p2cd == false){
+      player2.hurtPlayer();
+      p1cd = true;
+    }
     owner.removeBomb();
-    blocklist[this.getX()][this.getY()] = null;
+    blocklist[this.getX()][this.getY()] = new Block(exp,this.getX(),this.getY(),"Explosion");
     grid.removeMark(loc);
-    balloonlist.remove(this);
+  }
+  public void pushBomb(int dirx, int diry){
+    Block[][] blocklist = grid.getBList();
+    if (this == null || this.alive == false){
+      blocklist[this.getX()][this.getY()] = null;
+      grid.removeMark(loc);
+
+      return;
+    }
+    this.resetPushTimer();
+    this.dirx = dirx;
+    this.diry = diry;
+    int thisx = this.getX();
+    int thisy = this.getY();
+
+      int x = this.getX() + dirx;
+      int y = this.getY() + diry;
+      if (x < 0 || x >= grid.getNumRows() || y < 0 || y >= grid.getNumCols()){
+        isPushed = false;
+        return;
+      }
+      Block thisblock = blocklist[thisx][thisy];
+      Block cell = blocklist[x][y];
+      GridLocation eloc = new GridLocation(x,y);
+        if (eloc.equals(player1.getLocation()) || eloc.equals(player2.getLocation())){
+          this.Explode();
+          isPushed = false;
+          return;
+        }
+      if (cell != null && cell.getType().equals("Balloon")){
+        this.Explode();
+        isPushed = false;
+        return;
+      }
+      if (cell != null && !cell.getType().equals("Explosion")){
+        isPushed = false;
+        return;
+      }
+      else {
+        isPushed = true;
+        this.updateLocation(x,y);
+        if (cell != null && cell.getType().equals("Explosion")){
+          this.Explode();
+          isPushed = false;
+          return;
+        }
+      }
+      println("Running!");
+
+
   }
       public String toString(){
         if (owner != null){
@@ -760,6 +948,14 @@ public class Grid{
 
   public Block[][] getBList(){
     return blocklist;
+  }
+  public void updateBList(GridLocation oldL, GridLocation newL){
+    int oldx = oldL.getRow();
+    int oldy = oldL.getCol();
+    int newx = newL.getRow();
+    int newy = newL.getCol();
+    blocklist[newx][newy] = blocklist[oldx][oldy];
+    blocklist[oldx][oldy] = null;
   }
   // Method that Assigns a String mark to a location in the Grid.  
   // This mark is not necessarily visible, but can help in tracking
@@ -2022,13 +2218,19 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     private PImage Pi;
 
     //Player Stats from Powerups
-    private int currentbombs;
-    private int maxbombs;
-    private int explosionradius;
-    private int lives;
+    private int currentbombs = 0;
+    private int maxbombs = 3;
+    private int explosionradius = 1;
+    private int lives = 1;
+    private boolean bombpierce = false;
+    private boolean selfdamage = true;
+    private boolean bombpush = true;
+
 
     //Player Status
     private boolean isAlive;
+    private int iframetimer = 0;
+    private int movetimer = 0;
 
     public Player(PImage P){
         this(P,0,0);
@@ -2038,10 +2240,6 @@ public class Player{    //Consider having Player extend from AnimatedSprite
         this.posx = x;
         this.posy = y;
         this.isAlive = true;
-        maxbombs = 1;
-        currentbombs = 0;
-        explosionradius = 1;
-        lives = 1;
     }
     public PImage getImage(){
         return Pi;
@@ -2061,14 +2259,30 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     public int getBombs(){
         return currentbombs;
     }
+    public int getMoveTimer(){
+        return movetimer;
+    }
+    public boolean canPierce(){
+        return bombpierce;
+    }
+    public boolean selfHarm(){
+        return selfdamage;
+    }
+    public boolean canPush(){
+        return bombpush;
+    }
     public GridLocation getLocation(){
         return new GridLocation(posx,posy);
     }
 
     public void hurtPlayer(){
-        lives--;
-        if (lives <= 0){
-            isAlive = false;
+        if (iframetimer <= 0){
+            iframetimer = 200;
+            lives--;
+            System.out.println("Ouch!");
+            if (lives <= 0){
+                isAlive = false;
+            }
         }
     }
     public void updateLocation(GridLocation l){
@@ -2081,26 +2295,41 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     public void setBombs(int b){
         currentbombs = b;
     }
+    public void piercePowerup(){
+        bombpierce = true;
+    }
+    public void sdImmunePowerup(){
+        selfdamage = false;
+    }
+    public void glovePowerup(){
+        bombpush = true;
+    }
     public void addBomb(){
         currentbombs++;
     }
     public void removeBomb(){
         currentbombs--;
     }
+    public void addLife(){
+        lives = Math.min(lives+1, 9);
+    }
     public void setMaxBombs(int b){
-        maxbombs = b;
+        maxbombs = Math.min(b,5);
     }
     public void raiseMaxBombs(){
-        maxbombs++;
+        maxbombs = Math.min(maxbombs+1,5);
+    }
+    public void resetMoveTimer(){
+        movetimer = 100;
     }
     public void lowerMaxBombs(){
         maxbombs--;
     }
     public void setExplosionRadius(int v){
-        explosionradius = v;
+        explosionradius = Math.min(v,10);
     }
     public void raiseExplosionRadius(){
-        explosionradius++;
+        explosionradius = Math.min(explosionradius+1,10);
     }
     public void lowerExplosionRadius(){
         explosionradius--;
@@ -2122,6 +2351,14 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     }
     public void raiseY(){
         posy++;
+    }
+    public void update(int dt){
+        if (iframetimer > 0){
+            iframetimer-=dt;
+        }
+        if (movetimer > 0){
+            movetimer-=dt;
+        }
     }
     public boolean collisionCheck(GridLocation loc){
         if (new GridLocation(posx,posy) == loc)

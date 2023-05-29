@@ -80,6 +80,14 @@ public class Grid{
   public Block[][] getBList(){
     return blocklist;
   }
+  public void updateBList(GridLocation oldL, GridLocation newL){
+    int oldx = oldL.getRow();
+    int oldy = oldL.getCol();
+    int newx = newL.getRow();
+    int newy = newL.getCol();
+    blocklist[newx][newy] = blocklist[oldx][oldy];
+    blocklist[oldx][oldy] = null;
+  }
   // Method that Assigns a String mark to a location in the Grid.  
   // This mark is not necessarily visible, but can help in tracking
   // what you want recorded at each GridLocation.

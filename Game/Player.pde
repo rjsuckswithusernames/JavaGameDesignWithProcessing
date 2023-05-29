@@ -9,7 +9,7 @@ public class Player{    //Consider having Player extend from AnimatedSprite
 
     //Player Stats from Powerups
     private int currentbombs = 0;
-    private int maxbombs = 3;
+    private int maxbombs = 1;
     private int explosionradius = 1;
     private int lives = 1;
     private boolean bombpierce = false;

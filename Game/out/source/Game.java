@@ -61,18 +61,18 @@ protected int[][] dirs =
 };
 protected String[] powers = {
   //COMMON ITEMS
-  //"Raincoat", // +1 Life. 
-  //"Hose", // +1 to Range.
-  //"SpareBalloon", //+1 to MaxBalloons.
-  //"Raincoat",
-  //"Hose",
-  //"SpareBalloon",
-  //"Raincoat",
-  //"Hose",
-  //"SpareBalloon",
+  "Raincoat", // +1 Life. 
+  "Hose", // +1 to Range.
+  "SpareBalloon", //+1 to MaxBalloons.
+  "Raincoat",
+  "Hose",
+  "SpareBalloon",
+  "Raincoat",
+  "Hose",
+  "SpareBalloon",
   //RARE ITEMS
-  //"PiercingBalloon", //Allows Balloon explosions to pierce through walls.
-  //"HardHat", //Makes you immune to your own balloon explosions.
+  "PiercingBalloon", //Allows Balloon explosions to pierce through walls.
+  "HardHat", //Makes you immune to your own balloon explosions.
   "BoxingGlove" //Allows you to push your own bombs.
 };
 
@@ -2219,12 +2219,12 @@ public class Player{    //Consider having Player extend from AnimatedSprite
 
     //Player Stats from Powerups
     private int currentbombs = 0;
-    private int maxbombs = 3;
+    private int maxbombs = 1;
     private int explosionradius = 1;
     private int lives = 1;
     private boolean bombpierce = false;
     private boolean selfdamage = true;
-    private boolean bombpush = true;
+    private boolean bombpush = false;
 
 
     //Player Status

@@ -8,13 +8,19 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     private PImage Pi;
 
     //Player Stats from Powerups
-    private int currentbombs;
-    private int maxbombs;
-    private int explosionradius;
-    private int lives;
+    private int currentbombs = 0;
+    private int maxbombs = 3;
+    private int explosionradius = 1;
+    private int lives = 1;
+    private boolean bombpierce = false;
+    private boolean selfdamage = true;
+    private boolean bombpush = false;
+
 
     //Player Status
     private boolean isAlive;
+    private int iframetimer = 0;
+    private int movetimer = 0;
 
     public Player(PImage P){
         this(P,0,0);
@@ -24,10 +30,6 @@ public class Player{    //Consider having Player extend from AnimatedSprite
         this.posx = x;
         this.posy = y;
         this.isAlive = true;
-        maxbombs = 1;
-        currentbombs = 0;
-        explosionradius = 1;
-        lives = 1;
     }
     public PImage getImage(){
         return Pi;
@@ -47,14 +49,30 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     public int getBombs(){
         return currentbombs;
     }
+    public int getMoveTimer(){
+        return movetimer;
+    }
+    public boolean canPierce(){
+        return bombpierce;
+    }
+    public boolean selfHarm(){
+        return selfdamage;
+    }
+    public boolean canPush(){
+        return bombpush;
+    }
     public GridLocation getLocation(){
         return new GridLocation(posx,posy);
     }
 
     public void hurtPlayer(){
-        lives--;
-        if (lives <= 0){
-            isAlive = false;
+        if (iframetimer <= 0){
+            iframetimer = 200;
+            lives--;
+            System.out.println("Ouch!");
+            if (lives <= 0){
+                isAlive = false;
+            }
         }
     }
     public void updateLocation(GridLocation l){
@@ -67,26 +85,41 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     public void setBombs(int b){
         currentbombs = b;
     }
+    public void piercePowerup(){
+        bombpierce = true;
+    }
+    public void sdImmunePowerup(){
+        selfdamage = false;
+    }
+    public void glovePowerup(){
+        bombpush = true;
+    }
     public void addBomb(){
         currentbombs++;
     }
     public void removeBomb(){
         currentbombs--;
     }
+    public void addLife(){
+        lives = Math.min(lives+1, 9);
+    }
     public void setMaxBombs(int b){
-        maxbombs = b;
+        maxbombs = Math.min(b,5);
     }
     public void raiseMaxBombs(){
-        maxbombs++;
+        maxbombs = Math.min(maxbombs+1,5);
+    }
+    public void resetMoveTimer(){
+        movetimer = 100;
     }
     public void lowerMaxBombs(){
         maxbombs--;
     }
     public void setExplosionRadius(int v){
-        explosionradius = v;
+        explosionradius = Math.min(v,10);
     }
     public void raiseExplosionRadius(){
-        explosionradius++;
+        explosionradius = Math.min(explosionradius+1,10);
     }
     public void lowerExplosionRadius(){
         explosionradius--;
@@ -108,6 +141,14 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     }
     public void raiseY(){
         posy++;
+    }
+    public void update(int dt){
+        if (iframetimer > 0){
+            iframetimer-=dt;
+        }
+        if (movetimer > 0){
+            movetimer-=dt;
+        }
     }
     public boolean collisionCheck(GridLocation loc){
         if (new GridLocation(posx,posy) == loc)

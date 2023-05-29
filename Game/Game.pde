@@ -3,7 +3,7 @@
  * Authors: Raymond Morel, Muhammad Zahid
  */
 
-
+import java.util.concurrent.*;
 import processing.sound.*;
 
 //GAME VARIABLES
@@ -31,21 +31,23 @@ protected int[][] dirs =
   {0,-1}, //left
   {0,1} //right
 };
+ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 protected String[] powers = {
   //COMMON ITEMS
-  "Raincoat", // +1 Life. 
+  "Skates", // Move Faster. 
   "Hose", // +1 to Range.
   "SpareBalloon", //+1 to MaxBalloons.
-  "Raincoat",
+  "Skates",
   "Hose",
   "SpareBalloon",
-  "Raincoat",
+  "Skates",
   "Hose",
   "SpareBalloon",
   //RARE ITEMS
   "PiercingBalloon", //Allows Balloon explosions to pierce through walls.
   "HardHat", //Makes you immune to your own balloon explosions.
-  "BoxingGlove" //Allows you to push your own bombs.
+  "BoxingGlove", //Allows you to push your own bombs.
+  "Raincoat" // +1 Life. 
 };
 
 //SOUNDS
@@ -53,27 +55,33 @@ protected String[] powers = {
 SoundFile splash;
 //INPUTS
 
+
+
 //P1
-int wkey = 87;
-int akey = 65;
-int skey = 83;
-int dkey = 68;
+int[] p1movekeys = {
+  87, //up
+  65, //left
+  83, //down
+  68 //right
+};
 int ekey = 69;
-
+boolean p1movedebounce = false;
 //P2
-int up = 38;
-int left = 37;
-int down = 40;
-int right = 39;
+int[] p2movekeys = {
+  38, //up
+  37, //left
+  40, //down
+  39 //right
+};
 int space = 32;
-
+boolean p2movedebounce = false;
 //SoundFile song;
 
 
 
 //Required Processing method that gets run once
 void setup() {
-  frameRate(30);
+  frameRate(60);
   //Match the screen size to the background image size
   size(800, 600);
   //Set the title on the title bar
@@ -140,7 +148,7 @@ void draw() {
   }
   player1.update(delta);
   player2.update(delta);
-  msElapsed +=(1/30);
+  msElapsed +=(1/60);
   //grid.pause(1/30);
   lastTime = millis();
 }
@@ -154,76 +162,35 @@ void keyPressed(){
   //What to do when a key is pressed?
   
   //player 1 movement
-  if((keyCode == wkey || keyCode == akey || keyCode == skey || keyCode == dkey) && player1.getMoveTimer() <= 0){
-    blocklist = grid.getBList();
-    //check case where out of bounds
-    //change the field for player1Row
-    int x = player1.getX();
-    int y = player1.getY();
-   if (keyCode == wkey && player1.getX() > 0 && !(player1.getX()-1 == player2.getX() && player1.getY()  == player2.getY()) ){
-    x--;
-   }
-   if (keyCode == akey && player1.getY()  > 0 && !(player1.getY()-1 == player2.getY() && player1.getX() == player2.getX())) {
-    y--;
-   }
-   if (keyCode == skey && player1.getX() < grid.getNumRows()-1 && !(player1.getX()+1 == player2.getX() && player1.getY()  == player2.getY())) {
-    x++;
-   }
-   if (keyCode == dkey && player1.getY() < grid.getNumCols()-1 && !(player1.getY()+1 == player2.getY() && player1.getX() == player2.getX())) {
-    y++;
-   }
-    handleCollisions(x,y,player1,player2,keyCode);
-  } //end player1movement
+  if(keyCode == p1movekeys[0] || keyCode == p1movekeys[1] || keyCode == p1movekeys[2] || keyCode == p1movekeys[3]){
+    if (player1.getMoveTimer() <= 0){
+      movePlayer(player1,player2,p1movekeys,keyCode);
+    }
+    else if (player1.getMoveTimer() <= player1.getMaxMoveTimer()/1.25 && p1movedebounce == false){
+      p1movedebounce = true;
+      int key = keyCode;
+      Runnable movement = () -> movePlayer(player1,player2,p1movekeys,key);
+      executorService.schedule(movement, player1.getMoveTimer(), TimeUnit.MILLISECONDS);
+    }
+  }
   if (keyCode == ekey && !(blocklist[player1.getX()][player1.getY()] != null && blocklist[player1.getX()][player1.getY()].getLocation().equals(player1.getLocation())) && player1.getBombs() < player1.getMaxBombs()) {
-    player1.addBomb();
-    PImage wall = loadImage("images/balloon.png");
-    wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-    GridLocation loc = player1.getLocation();
-    grid.setMark("B", loc);
-    grid.setTileImage(loc, wall);
-    Block b = new Block(wall,loc,"Balloon",player1);
-    grid.addBlock(b);
-    System.out.println(blocklist);
-    //b.Explode();
-
-    
-
-    System.out.println("Mark Placed");
+    placeBomb(player1);
   }
   //Player2 movement
 
-  if((keyCode == up || keyCode == left || keyCode == down || keyCode == right) && player2.getMoveTimer() <= 0){
-    blocklist = grid.getBList();
-    int x = player2.getX();
-    int y = player2.getY();
-   if (keyCode == up && player2.getX() > 0 && !(player2.getX()-1 == player1.getX() && player1.getY()  == player2.getY()) ){
-    x--;
-   }
-   if (keyCode == left && player2.getY()  > 0 && !(player2.getY()-1 == player1.getY() && player1.getX() == player2.getX())) {
-    y--;
-   }
-   if (keyCode == down && player2.getX() < grid.getNumRows()-1 && !(player2.getX()+1 == player1.getX() && player1.getY()  == player2.getY())) {
-    x++;
-   }
-   if (keyCode == right && player2.getY() < grid.getNumCols()-1 && !(player2.getY()+1 == player1.getY() && player1.getX() == player2.getX())) {
-    y++;
-   }
-   handleCollisions(x,y,player2,player1,keyCode);
+  if(keyCode == p2movekeys[0] || keyCode == p2movekeys[1] || keyCode == p2movekeys[2] || keyCode == p2movekeys[3]){
+    if (player2.getMoveTimer() <= 0){
+      movePlayer(player2,player1,p2movekeys,keyCode);
+    }
+    else if (player2.getMoveTimer() <= player2.getMaxMoveTimer()/1.25 && p2movedebounce == false){
+      p2movedebounce = true;
+      int key = keyCode;
+      Runnable movement = () -> movePlayer(player2,player1,p2movekeys,key);
+      executorService.schedule(movement, player2.getMoveTimer(), TimeUnit.MILLISECONDS);
+    }
   } //end Player2movement
   if (keyCode == space && !(blocklist[player2.getX()][player2.getY()] != null && blocklist[player2.getX()][player2.getY()].getLocation().equals(player2.getLocation())) && player2.getBombs() < player2.getMaxBombs()) {
-    player2.addBomb();
-    PImage wall = loadImage("images/balloon.png");
-    wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-    GridLocation loc = player2.getLocation();
-    grid.setMark("B", loc);
-    grid.setTileImage(loc, wall);
-    Block b = new Block(wall,loc,"Balloon",player2);
-    grid.addBlock(b);
-    System.out.println(blocklist);
-
-    
-
-    System.out.println("Mark Placed");
+    placeBomb(player2);
   }
 
   }
@@ -240,8 +207,8 @@ void keyPressed(){
 
 
     //Toggle the animation on & off
-    doAnimation = !doAnimation;
-    System.out.println("doAnimation: " + doAnimation);
+    //doAnimation = !doAnimation;
+    //System.out.println("doAnimation: " + doAnimation);
     //grid.setMark("X",grid.getGridLocation());
     
   }
@@ -344,7 +311,32 @@ public void moveSprites(){
 
 
 }
-
+public void movePlayer(Player moving, Player opponent, int[] keys, int keyCode){
+    blocklist = grid.getBList();
+    //check case where out of bounds
+    //change the field for player1Row
+    int x = moving.getX();
+    int y = moving.getY();
+   if (keyCode == keys[0] && moving.getX() > 0 && !(moving.getX()-1 == opponent.getX() && moving.getY()  == opponent.getY()) ){
+    x--;
+   }
+   if (keyCode == keys[1] && moving.getY()  > 0 && !(moving.getY()-1 == opponent.getY() && moving.getX() == opponent.getX())) {
+    y--;
+   }
+   if (keyCode == keys[2] && moving.getX() < grid.getNumRows()-1 && !(moving.getX()+1 == opponent.getX() && moving.getY()  == opponent.getY())) {
+    x++;
+   }
+   if (keyCode == keys[3] && moving.getY() < grid.getNumCols()-1 && !(moving.getY()+1 == opponent.getY() && moving.getX() == opponent.getX())) {
+    y++;
+   }
+    handleCollisions(x,y,moving,opponent,keyCode);
+    if (moving == player1){
+      p1movedebounce = false;
+    }
+    if (moving == player2){
+      p2movedebounce = false;
+    }
+}
 //Method to handle the collisions between Sprites on the Screen
 public void handleCollisions(int x, int y, Player moving, Player opponent, int direction){
     blocklist = grid.getBList();
@@ -376,7 +368,11 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("BoxingGlove")){
-        moving.sdImmunePowerup();
+        moving.glovePowerup();
+        blocklist[x][y] = null;
+      }
+      else if (b != null && b.getType().equals("Skates")){
+        moving.skatePowerup();
         blocklist[x][y] = null;
       }
       else if ((b != null && b.getLocation().equals(loc)) || (blocklist[moving.getX()][moving.getY()] != null && blocklist[moving.getX()][moving.getY()].getType().equals("Explosion"))){
@@ -397,7 +393,17 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
     }
 
 }
-
+public void placeBomb(Player placer){
+    placer.addBomb();
+    PImage wall = loadImage("images/balloon.png");
+    wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+    GridLocation loc = placer.getLocation();
+    grid.setMark("B", loc);
+    grid.setTileImage(loc, wall);
+    Block b = new Block(wall,loc,"Balloon",placer);
+    grid.addBlock(b);
+    System.out.println(blocklist);
+}
 //method to indicate when the main game is over
 public boolean isGameOver(){
   return false; //by default, the game is never over

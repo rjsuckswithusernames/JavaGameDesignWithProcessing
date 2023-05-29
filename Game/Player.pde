@@ -12,6 +12,7 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     private int maxbombs = 1;
     private int explosionradius = 1;
     private int lives = 1;
+    private int skates = 0;
     private boolean bombpierce = false;
     private boolean selfdamage = true;
     private boolean bombpush = false;
@@ -19,8 +20,9 @@ public class Player{    //Consider having Player extend from AnimatedSprite
 
     //Player Status
     private boolean isAlive;
-    private int iframetimer = 0;
-    private int movetimer = 0;
+    private long iframetimer = 0;
+    private long movetimer = 0;
+    private long maxmovetimer = 200;
 
     public Player(PImage P){
         this(P,0,0);
@@ -49,7 +51,7 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     public int getBombs(){
         return currentbombs;
     }
-    public int getMoveTimer(){
+    public long getMoveTimer(){
         return movetimer;
     }
     public boolean canPierce(){
@@ -64,7 +66,9 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     public GridLocation getLocation(){
         return new GridLocation(posx,posy);
     }
-
+    public long getMaxMoveTimer(){
+        return maxmovetimer;
+    }
     public void hurtPlayer(){
         if (iframetimer <= 0){
             iframetimer = 200;
@@ -81,6 +85,10 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     }
     public void setImage(PImage P){
         Pi = P;
+    }
+    public void skatePowerup(){
+        skates = Math.min(skates+1,5);
+        maxmovetimer = 200 - (20*skates);
     }
     public void setBombs(int b){
         currentbombs = b;
@@ -101,7 +109,7 @@ public class Player{    //Consider having Player extend from AnimatedSprite
         currentbombs--;
     }
     public void addLife(){
-        lives = Math.min(lives+1, 9);
+        lives = Math.min(lives+1, 5);
     }
     public void setMaxBombs(int b){
         maxbombs = Math.min(b,5);
@@ -110,7 +118,7 @@ public class Player{    //Consider having Player extend from AnimatedSprite
         maxbombs = Math.min(maxbombs+1,5);
     }
     public void resetMoveTimer(){
-        movetimer = 100;
+        movetimer = maxmovetimer;
     }
     public void lowerMaxBombs(){
         maxbombs--;

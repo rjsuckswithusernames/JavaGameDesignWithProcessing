@@ -37,6 +37,8 @@ public class Game extends PApplet {
 //GAME VARIABLES
 private int msElapsed = 0;
 
+protected int gamestate = 0; // 0: Main Menu, 1: Game, 2: Paused, 3: Game-Over
+
 int maximumx = 11;
 int maximumy = 13;
 int lastTime = 0;
@@ -152,19 +154,12 @@ public void setup() {
   /* size commented out by preprocessor */;
   //Set the title on the title bar
   surface.setTitle(titleText);
-  grid.generateLevel();
   //Load images used
   //bg = loadImage("images/chess.jpg");
-  bg = loadImage("images/grid.png");
+  bg = loadImage("images/werksugvfuywegg.jpg");
   bg.resize(800,600);
-  PImage p1image = loadImage("images/x_wood.png");
-  p1image.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-  PImage p2image = loadImage("images/spook.png");
-  p2image.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-  player1 = new Player(p1image);
-  player2 = new Player(p2image,maximumx-1,maximumy-1);
   endScreen = loadImage("images/youwin.png");
-  Block[][] blocklist = grid.getBList();
+  reset();
   // Load a soundfile from the /data folder of the sketch and play it back
   // song = new SoundFile(this, "sounds/Lenny_Kravitz_Fly_Away.mp3");
   // song.play();
@@ -187,37 +182,14 @@ public void setup() {
 //(Anything drawn on the screen should be called from here)
 public void draw() {
   delta = millis() - lastTime;
-
   updateTitleBar();
-
-  if (msElapsed % 300 == 0) {
-    populateSprites();
-    moveSprites();
+  if (gamestate == 0){
+    initgame();
+  } else{
+    playinggame(delta);
   }
-
-  updateScreen();
-  
-  if(isGameOver()){
-    endGame();
-  }
-
-  checkExampleAnimation();
-  //println(delta);
-  grid.update(delta);
-  for (int r = 0; r < blocklist.length; r++){
-    for (int c = 0; c < blocklist[r].length; c++){
-        if (blocklist[r][c] != null && blocklist[r][c].isAbleToUpdate() == true){
-        Block b = blocklist[r][c];
-        b.update(delta);
-      }
-    }
-
-  }
-  player1.update(delta);
-  player2.update(delta);
-  msElapsed +=(1/60);
-  //grid.pause(1/30);
   lastTime = millis();
+  msElapsed+=(1/60);
 }
 
 //Known Processing method that automatically will run whenever a key is pressed
@@ -229,6 +201,7 @@ public void keyPressed(){
   //What to do when a key is pressed?
   
   //player 1 movement
+  if (gamestate == 1){
   if(keyCode == p1movekeys[0] || keyCode == p1movekeys[1] || keyCode == p1movekeys[2] || keyCode == p1movekeys[3]){
     if (player1.getMoveTimer() <= 0){
       movePlayer(player1,player2,p1movekeys,keyCode);
@@ -261,8 +234,8 @@ public void keyPressed(){
   }
 
   }
-
-
+}
+  
   //Known Processing method that automatically will run when a mouse click triggers it
   public void mouseClicked(){
   
@@ -271,7 +244,12 @@ public void keyPressed(){
     System.out.println("Grid location: " + grid.getGridLocation());
 
     //what to do if clicked? (Make player1 disappear?)
-
+    if (gamestate != 1){
+      if (gamestate != 2){
+        reset();
+      }
+      gamestate = 1;
+    }
 
     //Toggle the animation on & off
     //doAnimation = !doAnimation;
@@ -279,9 +257,74 @@ public void keyPressed(){
     //grid.setMark("X",grid.getGridLocation());
     
   }
+  public void initgame(){
+    background(bg);
+    textSize(64);
+    textAlign(CENTER);
+    text("Click to start", 800/2, 600/2);
+  }
+public void playinggame(int dt){
 
+  if (msElapsed % 300 == 0) {
+    populateSprites();
+    moveSprites();
+  }
 
+  updateScreen();
+  
+  if(isGameOver()){
+    gamestate = 3;
+  }
 
+  checkExampleAnimation();
+  //println(dt);
+  if (gamestate == 1){
+    update(dt);
+  }
+  msElapsed +=(1/60);
+  //grid.pause(1/30);
+  if (isGameOver() && gamestate != 3){
+    gamestate = 3;
+  }
+  if (gamestate == 3){
+    textSize(64);
+    textAlign(CENTER);
+    if (player2.isLiving() && !(player1.isLiving())){
+      text("Player 2 Wins!", 800/2, 600/2);
+    } else if (!(player2.isLiving()) && player1.isLiving()) {
+      text("Player 1 Wins!", 800/2, 600/2);
+    } else {
+          text("Tie!", 800/2, 600/2);
+    }
+  }
+  }
+
+  public void reset(){
+    grid.resetBList();
+    grid.resetLootTimer();
+    grid.generateLevel();
+    PImage p1image = loadImage("images/x_wood.png");
+    p1image.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+    PImage p2image = loadImage("images/spook.png");
+    p2image.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+    player1 = new Player(p1image);
+    player2 = new Player(p2image,maximumx-1,maximumy-1);
+    Block[][] blocklist = grid.getBList();
+  }
+
+  public void update(int dt){
+    grid.update(dt);
+    for (int r = 0; r < blocklist.length; r++){
+      for (int c = 0; c < blocklist[r].length; c++){
+          if (blocklist[r][c] != null && blocklist[r][c].isAbleToUpdate() == true){
+          Block b = blocklist[r][c];
+          b.update(dt);
+        }
+      }
+    }
+    player1.update(dt);
+    player2.update(dt);
+  }
 
 
 //------------------ CUSTOM  METHODS --------------------//
@@ -495,17 +538,18 @@ public void placeBomb(Player placer){
 }
 //method to indicate when the main game is over
 public boolean isGameOver(){
-  return false; //by default, the game is never over
+  return !(player1.isLiving() && player2.isLiving()); //game ends when one player dies.
 }
 
 //method to describe what happens after the game is over
 public void endGame(){
-    System.out.println("Game Over!");
+    //System.out.println("Game Over!");
 
     //Update the title bar
 
     //Show any end imagery
-    image(endScreen, 100,100);
+    //background(bg);
+
 
 }
 
@@ -764,7 +808,7 @@ public void update(double dt){
       if (timer <= 0){
         Block[][] blocklist = grid.getBList();
         
-        if (this.owner != null && Math.random() < .4f){
+        if (this.owner != null && Math.random() < .3f){
           String pow = this.getRandomPower();
           PImage powimage = loadImage("images/"+pow+".png");
           powimage.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
@@ -1003,7 +1047,7 @@ public class Grid{
     fire.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     for (int x = 0; x < rows; x++){
       for (int y = 0; y < cols; y++){
-        if (template[x][y].equals("") && Math.random() < 1){
+        if (template[x][y].equals("") && Math.random() < .9f){
 
           blocklist[x][y] = new Block(fire,x,y,"Fire");
         }
@@ -1091,6 +1135,13 @@ public boolean allFilled(){
     blocklist[newx][newy] = blocklist[oldx][oldy];
     blocklist[oldx][oldy] = null;
   }
+  public void resetBList(){
+    for (int r = 0; r < rows; r++){
+      for (int c = 0; c < cols; c++){
+        blocklist[r][c] = null;
+      }
+    }
+  }
   // Method that Assigns a String mark to a location in the Grid.  
   // This mark is not necessarily visible, but can help in tracking
   // what you want recorded at each GridLocation.
@@ -1098,7 +1149,9 @@ public boolean allFilled(){
     board[loc.getRow()][loc.getCol()].setNewMark(mark);
     //printGrid();
   } 
-
+  public void resetLootTimer(){
+    lootTimer = 60000;
+  }
   // Method that Assigns a String mark to a location in the Grid.  
   // This mark is not necessarily visible, but can help in tracking
   // what you want recorded at each GridLocation.  
@@ -2398,6 +2451,9 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     }
     public long getMoveTimer(){
         return movetimer;
+    }
+    public boolean isLiving(){
+        return isAlive;
     }
     public boolean canPierce(){
         return bombpierce;

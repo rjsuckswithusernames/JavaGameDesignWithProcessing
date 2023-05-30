@@ -50,7 +50,7 @@ public class Grid{
     fire.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     for (int x = 0; x < rows; x++){
       for (int y = 0; y < cols; y++){
-        if (template[x][y].equals("") && Math.random() < 1){
+        if (template[x][y].equals("") && Math.random() < .9){
 
           blocklist[x][y] = new Block(fire,x,y,"Fire");
         }
@@ -138,6 +138,13 @@ public boolean allFilled(){
     blocklist[newx][newy] = blocklist[oldx][oldy];
     blocklist[oldx][oldy] = null;
   }
+  public void resetBList(){
+    for (int r = 0; r < rows; r++){
+      for (int c = 0; c < cols; c++){
+        blocklist[r][c] = null;
+      }
+    }
+  }
   // Method that Assigns a String mark to a location in the Grid.  
   // This mark is not necessarily visible, but can help in tracking
   // what you want recorded at each GridLocation.
@@ -145,7 +152,9 @@ public boolean allFilled(){
     board[loc.getRow()][loc.getCol()].setNewMark(mark);
     //printGrid();
   } 
-
+  public void resetLootTimer(){
+    lootTimer = 60000;
+  }
   // Method that Assigns a String mark to a location in the Grid.  
   // This mark is not necessarily visible, but can help in tracking
   // what you want recorded at each GridLocation.  

@@ -55,6 +55,9 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     public long getMoveTimer(){
         return movetimer;
     }
+    public boolean isLiving(){
+        return isAlive;
+    }
     public boolean canPierce(){
         return bombpierce;
     }

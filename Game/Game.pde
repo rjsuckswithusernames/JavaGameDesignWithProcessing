@@ -4,7 +4,7 @@
  */
 
 import java.util.concurrent.*;
-import processing.sound.*;
+//import processing.sound.*;
 
 //GAME VARIABLES
 private int msElapsed = 0;
@@ -35,7 +35,7 @@ ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExe
 protected String[] powers = {
   //COMMON ITEMS
   "Skates", // Move Faster. 
-  "Hose", // +1 to Range.
+  "Hose", // +1 to Explosion Radius.
   "SpareBalloon", //+1 to MaxBalloons.
   "Skates",
   "Hose",
@@ -43,16 +43,54 @@ protected String[] powers = {
   "Skates",
   "Hose",
   "SpareBalloon",
+  "Skates",
+  "Hose",
+  "SpareBalloon",
+  "Skates",
+  "Hose",
+  "SpareBalloon",
+  "Skates",
+  "Hose",
+  "SpareBalloon",
+  "Skates",
+  "Hose",
+  "SpareBalloon",
+  //UNCOMMON ITEMS
+  "HardHat", // Makes you immune to your own balloon explosions.
+  "BoxingGlove", // Allows you to push your own bombs.
+  "Raincoat", // +1 Life. 
+  "Hydrogen", // Balloons are stronger.
+  "HardHat", 
+  "BoxingGlove", 
+  "Raincoat",
+  "Hydrogen", 
+  "HardHat", 
+  "BoxingGlove", 
+  "Raincoat",
+  "Hydrogen", 
   //RARE ITEMS
-  "PiercingBalloon", //Allows Balloon explosions to pierce through walls.
-  "HardHat", //Makes you immune to your own balloon explosions.
-  "BoxingGlove", //Allows you to push your own bombs.
-  "Raincoat" // +1 Life. 
+  "PiercingBalloon", // Allows Balloon explosions to pierce through walls.
+  "RollerBlades", // Max Speed.
+  "PackOfBalloons", // Max Amount of Balloons.
+  "Sponge", // +3 Lives.
+  "WaterTank", // Max Explosion Radius.
+  //Uh Oh!
+  "balloon", // because im evil :)
+  "balloon",
+  "balloon"
+
+};
+protected String[] rarepowers = {
+  "PiercingBalloon",
+  "RollerBlades",
+  "PackOfBalloons",
+  "Sponge",
+  "WaterTank"
 };
 
 //SOUNDS
 
-SoundFile splash;
+//SoundFile splash;
 //INPUTS
 
 
@@ -136,7 +174,8 @@ void draw() {
   }
 
   checkExampleAnimation();
-  println(delta);
+  //println(delta);
+  grid.update(delta);
   for (int r = 0; r < blocklist.length; r++){
     for (int c = 0; c < blocklist[r].length; c++){
         if (blocklist[r][c] != null && blocklist[r][c].isAbleToUpdate() == true){
@@ -373,6 +412,28 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
       }
       else if (b != null && b.getType().equals("Skates")){
         moving.skatePowerup();
+        blocklist[x][y] = null;
+      }
+      else if (b != null && b.getType().equals("RollerBlades")){
+        moving.maxMoveSpeed();
+        blocklist[x][y] = null;
+      }
+      else if (b != null && b.getType().equals("Sponge")){
+        moving.addLife();
+        moving.addLife();
+        moving.addLife();
+        blocklist[x][y] = null;
+      }
+      else if (b != null && b.getType().equals("WaterTank")){
+        moving.setExplosionRadius(10);
+        blocklist[x][y] = null;
+      }
+      else if (b != null && b.getType().equals("Hydrogen")){
+        moving.strongerBombs();
+        blocklist[x][y] = null;
+      }
+      else if (b != null && b.getType().equals("PackOfBalloons")){
+        moving.setMaxBombs(5);
         blocklist[x][y] = null;
       }
       else if ((b != null && b.getLocation().equals(loc)) || (blocklist[moving.getX()][moving.getY()] != null && blocklist[moving.getX()][moving.getY()].getType().equals("Explosion"))){

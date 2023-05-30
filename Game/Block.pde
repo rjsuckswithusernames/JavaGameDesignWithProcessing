@@ -120,11 +120,16 @@ public void update(double dt){
       if (timer <= 0){
         Block[][] blocklist = grid.getBList();
         
-        if (this.owner != null && Math.random() < .25){
+        if (this.owner != null && Math.random() < .3){
           String pow = this.getRandomPower();
           PImage powimage = loadImage("images/"+pow+".png");
           powimage.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-          blocklist[this.getX()][this.getY()] = new Block(powimage,this.getLocation(),pow);
+          if (pow.equals("balloon")){
+            blocklist[this.getX()][this.getY()] = new Block(powimage,this.getLocation(),"Balloon");
+          }
+          else{
+            blocklist[this.getX()][this.getY()] = new Block(powimage,this.getLocation(),pow);
+          }
         } else {
           blocklist[this.getX()][this.getY()] = null;
         }
@@ -183,13 +188,13 @@ public String getRandomPower(){
         
           if (cell.getType().equals("Fire")){
             blocklist[x][y] = new Block(exp,x,y,"Explosion", owner);
-            if (owner.canPierce() == true){
+            if (owner != null && owner.canPierce() == true){
               continue;
             }
             break;
           }
           if (cell.getType().equals("Wall")){
-            if (owner.canPierce() == true){
+            if (owner != null && owner.canPierce() == true){
               continue;
             }
             break;
@@ -222,14 +227,26 @@ public String getRandomPower(){
     }
     //splash.play();
     if (p1hit == true && p1cd == false){
-      player1.hurtPlayer();
+      if (owner != null && owner.areBombsStrong() == true && owner != player1){
+        player1.hurtPlayer(2);
+      }
+      else{
+        player1.hurtPlayer();
+      }
       p1cd = true;
     }
     if (p2hit == true && p2cd == false){
-      player2.hurtPlayer();
-      p1cd = true;
+      if (owner != null && owner.areBombsStrong() == true && owner != player2){
+        player2.hurtPlayer(2);
+      }
+      else{
+        player2.hurtPlayer();
+      }
+      p2cd = true;
     }
-    owner.removeBomb();
+    if (owner != null){
+      owner.removeBomb();
+    }
     blocklist[this.getX()][this.getY()] = new Block(exp,this.getX(),this.getY(),"Explosion");
     grid.removeMark(loc);
   }

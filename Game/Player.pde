@@ -16,6 +16,7 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     private boolean bombpierce = false;
     private boolean selfdamage = true;
     private boolean bombpush = false;
+    private boolean strongbombs = false;
 
 
     //Player Status
@@ -63,6 +64,9 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     public boolean canPush(){
         return bombpush;
     }
+    public boolean areBombsStrong(){
+        return strongbombs;
+    }
     public GridLocation getLocation(){
         return new GridLocation(posx,posy);
     }
@@ -79,15 +83,32 @@ public class Player{    //Consider having Player extend from AnimatedSprite
             }
         }
     }
+    public void hurtPlayer(int l){
+        if (iframetimer <= 0){
+            iframetimer = 200;
+            lives-=l;
+            System.out.println("Yeowch!");
+            if (lives <= 0){
+                isAlive = false;
+            }
+        }
+    }
     public void updateLocation(GridLocation l){
         posx = l.getRow();
         posy = l.getCol();
     }
+    public void setName(){
+        
+    }
     public void setImage(PImage P){
         Pi = P;
     }
+    public void maxMoveSpeed(){
+       skates = 9;
+       maxmovetimer = 200 - (20*skates);
+    }
     public void skatePowerup(){
-        skates = Math.min(skates+1,5);
+        skates = Math.min(skates+1,9);
         maxmovetimer = 200 - (20*skates);
     }
     public void setBombs(int b){
@@ -98,6 +119,9 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     }
     public void sdImmunePowerup(){
         selfdamage = false;
+    }
+    public void strongerBombs(){
+        strongbombs = true;
     }
     public void glovePowerup(){
         bombpush = true;

@@ -10,7 +10,7 @@ public class Grid{
   private int rows;
   private int cols;
   private GridTile[][] board;
-
+  private int lootTimer = 60000;
   private String[][] template = {
     {"x","x","","","","","","","","","","x","x"},
     {"x","▉","","▉","","▉","","▉","","▉","","▉","x"},
@@ -50,7 +50,7 @@ public class Grid{
     fire.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     for (int x = 0; x < rows; x++){
       for (int y = 0; y < cols; y++){
-        if (template[x][y].equals("") && Math.random() < 0.90){
+        if (template[x][y].equals("") && Math.random() < 1){
 
           blocklist[x][y] = new Block(fire,x,y,"Fire");
         }
@@ -60,6 +60,48 @@ public class Grid{
       }
     }
   }
+  public void populateItems(){
+    String[] items = new String[3];
+    for (int i = 0; i < 3; i++){
+      if (this.allFilled()){
+        break;
+      }
+      int rndx = new Random().nextInt(rows);
+      int rndy = new Random().nextInt(cols);
+      String pow = this.getRandomPower();
+      if (blocklist[rndx][rndy] != null || this.hasItem(items,pow)){
+        i--;
+        continue;
+      }
+      PImage powimage = loadImage("images/"+pow+".png");
+      powimage.resize(this.getTileWidthPixels(),this.getTileHeightPixels()); 
+      blocklist[rndx][rndy] = new Block(powimage,new GridLocation(rndx,rndy),pow);
+      items[i] = pow;
+    }
+  }
+  public String getRandomPower(){
+    int rnd = new Random().nextInt(rarepowers.length);
+    return rarepowers[rnd];
+}
+
+public boolean hasItem(String[] haystack, String needle){
+  for (int i = 0; i < haystack.length; i++){
+    if (haystack[i] != null && haystack[i].equals(needle)){
+      return true;
+    }
+  }
+  return false;
+}
+public boolean allFilled(){
+  for (int r = 0; r < rows; r++){
+    for (int c = 0; c < cols; c++){
+      if (blocklist[r][c] == null){
+        return false;
+      }
+    }
+  }
+  return true;
+}
 
   public void addBlock(Block b){
     GridLocation loc = b.getLocation();
@@ -70,6 +112,14 @@ public class Grid{
     //System.out.println(blocklist[x][y]);
   }
 
+  public void update(int dt){
+    lootTimer-=dt;
+    if (lootTimer <= 0){
+      lootTimer = 30000;
+      populateItems();
+    }
+    
+  }
 
   
   // Default Grid constructor that creates a 3x3 Grid  

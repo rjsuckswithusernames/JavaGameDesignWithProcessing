@@ -5,6 +5,7 @@ import processing.event.*;
 import processing.opengl.*;
 
 import java.util.concurrent.*;
+import processing.sound.*;
 import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class Game extends PApplet {
  */
 
 
-//import processing.sound.*;
+
 
 //GAME VARIABLES
 private int msElapsed = 0;
@@ -121,6 +122,11 @@ protected String[] rarepowers = {
 //SOUNDS
 
 //SoundFile splash;
+SoundFile pausesound;
+SoundFile kicksound;
+SoundFile placeSound;
+SoundFile boomSound;
+SoundFile lifeSound;
 //INPUTS
 
 
@@ -162,6 +168,11 @@ public void setup() {
   bg.resize(800,600);
   endScreen = loadImage("images/youwin.png");
   reset();
+  pausesound = new SoundFile(this, "sounds/Pause.wav");
+  kicksound = new SoundFile(this, "sounds/Kick.wav");
+  placeSound = new SoundFile(this, "sounds/Place.wav");
+  boomSound = new SoundFile(this, "sounds/Boom.wav");
+  lifeSound = new SoundFile(this, "sounds/1up.wav");
   // Load a soundfile from the /data folder of the sketch and play it back
   // song = new SoundFile(this, "sounds/Lenny_Kravitz_Fly_Away.mp3");
   // song.play();
@@ -234,12 +245,17 @@ public void keyPressed(){
   if (keyCode == space && !(blocklist[player2.getX()][player2.getY()] != null && blocklist[player2.getX()][player2.getY()].getLocation().equals(player2.getLocation())) && player2.getBombs() < player2.getMaxBombs()) {
     placeBomb(player2);
   }
-  if (keyCode == esc && canpause == true){
-    canpause = false;
+  if (keyCode == esc){
     key = 0;
-    gamestate = 2;
-    Runnable pause = () -> resetPause();
-    executorService.schedule(pause, 500, TimeUnit.MILLISECONDS);
+    if (canpause == true){
+      canpause = false;
+      gamestate = 2;
+      Runnable pause = () -> resetPause();
+      executorService.schedule(pause, 500, TimeUnit.MILLISECONDS);
+      pausesound.play();
+    }
+
+    
   }
   }
   if (gamestate != 1 ){
@@ -249,6 +265,9 @@ public void keyPressed(){
       canpause = false;
       if (gamestate != 2){
         reset();
+      }
+      else{
+        pausesound.play();
       }
       gamestate = 1;
       Runnable pause = () -> resetPause();
@@ -269,6 +288,9 @@ public void keyPressed(){
     if (gamestate != 1){
       if (gamestate != 2){
         reset();
+      }
+      else  {
+          pausesound.play();
       }
       gamestate = 1;
     }
@@ -485,6 +507,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
     Block b = blocklist[x][y];
       if (b != null && b.getType().equals("Raincoat")){
         moving.addLife();
+        lifeSound.play();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("Hose")){
@@ -519,6 +542,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
         moving.addLife();
         moving.addLife();
         moving.addLife();
+        lifeSound.play();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("WaterTank")){
@@ -540,6 +564,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
           int dirx = x - moving.getX();
           int diry = y - moving.getY();
           movable.pushBomb(dirx,diry);
+          kicksound.play();
         }
       }
     //shift the player1 picture up in the 2D array
@@ -552,6 +577,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
 
 }
 public void placeBomb(Player placer){
+    placeSound.play();
     placer.addBomb();
     PImage wall = loadImage("images/balloon.png");
     wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
@@ -939,7 +965,7 @@ public String getRandomPower(){
         
       }
     }
-    //splash.play();
+    boomSound.play();
     if (p1hit == true && p1cd == false){
       if (owner != null && owner.areBombsStrong() == true && owner != player1){
         player1.hurtPlayer(2);

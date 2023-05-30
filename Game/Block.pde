@@ -225,7 +225,7 @@ public String getRandomPower(){
         
       }
     }
-    //splash.play();
+    boomSound.play();
     if (p1hit == true && p1cd == false){
       if (owner != null && owner.areBombsStrong() == true && owner != player1){
         player1.hurtPlayer(2);

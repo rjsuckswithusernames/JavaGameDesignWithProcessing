@@ -4,7 +4,7 @@
  */
 
 import java.util.concurrent.*;
-//import processing.sound.*;
+import processing.sound.*;
 
 //GAME VARIABLES
 private int msElapsed = 0;
@@ -93,6 +93,11 @@ protected String[] rarepowers = {
 //SOUNDS
 
 //SoundFile splash;
+SoundFile pausesound;
+SoundFile kicksound;
+SoundFile placeSound;
+SoundFile boomSound;
+SoundFile lifeSound;
 //INPUTS
 
 
@@ -134,6 +139,11 @@ void setup() {
   bg.resize(800,600);
   endScreen = loadImage("images/youwin.png");
   reset();
+  pausesound = new SoundFile(this, "sounds/Pause.wav");
+  kicksound = new SoundFile(this, "sounds/Kick.wav");
+  placeSound = new SoundFile(this, "sounds/Place.wav");
+  boomSound = new SoundFile(this, "sounds/Boom.wav");
+  lifeSound = new SoundFile(this, "sounds/1up.wav");
   // Load a soundfile from the /data folder of the sketch and play it back
   // song = new SoundFile(this, "sounds/Lenny_Kravitz_Fly_Away.mp3");
   // song.play();
@@ -206,12 +216,17 @@ void keyPressed(){
   if (keyCode == space && !(blocklist[player2.getX()][player2.getY()] != null && blocklist[player2.getX()][player2.getY()].getLocation().equals(player2.getLocation())) && player2.getBombs() < player2.getMaxBombs()) {
     placeBomb(player2);
   }
-  if (keyCode == esc && canpause == true){
-    canpause = false;
+  if (keyCode == esc){
     key = 0;
-    gamestate = 2;
-    Runnable pause = () -> resetPause();
-    executorService.schedule(pause, 500, TimeUnit.MILLISECONDS);
+    if (canpause == true){
+      canpause = false;
+      gamestate = 2;
+      Runnable pause = () -> resetPause();
+      executorService.schedule(pause, 500, TimeUnit.MILLISECONDS);
+      pausesound.play();
+    }
+
+    
   }
   }
   if (gamestate != 1 ){
@@ -221,6 +236,9 @@ void keyPressed(){
       canpause = false;
       if (gamestate != 2){
         reset();
+      }
+      else{
+        pausesound.play();
       }
       gamestate = 1;
       Runnable pause = () -> resetPause();
@@ -241,6 +259,9 @@ void keyPressed(){
     if (gamestate != 1){
       if (gamestate != 2){
         reset();
+      }
+      else  {
+          pausesound.play();
       }
       gamestate = 1;
     }
@@ -290,7 +311,7 @@ void playinggame(int dt){
     } else if (!(player2.isLiving()) && player1.isLiving()) {
       text("Player 1 Wins!", 800/2, 600/2);
     } else {
-          text("Tie!", 800/2, 600/2);
+      text("Tie!", 800/2, 600/2);
     }
   }
   }
@@ -457,6 +478,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
     Block b = blocklist[x][y];
       if (b != null && b.getType().equals("Raincoat")){
         moving.addLife();
+        lifeSound.play();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("Hose")){
@@ -491,6 +513,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
         moving.addLife();
         moving.addLife();
         moving.addLife();
+        lifeSound.play();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("WaterTank")){
@@ -512,6 +535,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
           int dirx = x - moving.getX();
           int diry = y - moving.getY();
           movable.pushBomb(dirx,diry);
+          kicksound.play();
         }
       }
     //shift the player1 picture up in the 2D array
@@ -524,6 +548,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
 
 }
 public void placeBomb(Player placer){
+    placeSound.play();
     placer.addBomb();
     PImage wall = loadImage("images/balloon.png");
     wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());

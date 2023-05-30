@@ -36,7 +36,7 @@ public class Game extends PApplet {
 
 //GAME VARIABLES
 private int msElapsed = 0;
-
+boolean canpause = true;
 protected int gamestate = 0; // 0: Main Menu, 1: Game, 2: Paused, 3: Game-Over
 
 int maximumx = 11;
@@ -143,6 +143,8 @@ int[] p2movekeys = {
 };
 int space = 32;
 boolean p2movedebounce = false;
+
+int esc = 27;
 //SoundFile song;
 
 
@@ -232,7 +234,27 @@ public void keyPressed(){
   if (keyCode == space && !(blocklist[player2.getX()][player2.getY()] != null && blocklist[player2.getX()][player2.getY()].getLocation().equals(player2.getLocation())) && player2.getBombs() < player2.getMaxBombs()) {
     placeBomb(player2);
   }
-
+  if (keyCode == esc && canpause == true){
+    canpause = false;
+    key = 0;
+    gamestate = 2;
+    Runnable pause = () -> resetPause();
+    executorService.schedule(pause, 500, TimeUnit.MILLISECONDS);
+  }
+  }
+  if (gamestate != 1 ){
+    if (keyCode == esc){
+      key = 0;
+      if (canpause == true){
+      canpause = false;
+      if (gamestate != 2){
+        reset();
+      }
+      gamestate = 1;
+      Runnable pause = () -> resetPause();
+      executorService.schedule(pause, 500, TimeUnit.MILLISECONDS);
+      }
+    }
   }
 }
   
@@ -272,9 +294,6 @@ public void playinggame(int dt){
 
   updateScreen();
   
-  if(isGameOver()){
-    gamestate = 3;
-  }
 
   checkExampleAnimation();
   //println(dt);
@@ -285,6 +304,11 @@ public void playinggame(int dt){
   //grid.pause(1/30);
   if (isGameOver() && gamestate != 3){
     gamestate = 3;
+  }
+  if (gamestate == 2){
+    textSize(64);
+    textAlign(CENTER);
+    text("Paused", 800/2, 600/2);
   }
   if (gamestate == 3){
     textSize(64);
@@ -377,7 +401,9 @@ public void updateScreen(){
   //update other screen elements
 
 }
-
+  public void resetPause(){
+    canpause = true;
+  }
 //Method to populate enemies or other sprites on the screen
 public void populateSprites(){
   

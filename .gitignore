@@ -2,3 +2,4 @@
 out
 *.class
 out/source
+.vscode/settings.json

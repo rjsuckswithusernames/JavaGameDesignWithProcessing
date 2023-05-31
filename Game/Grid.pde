@@ -4,12 +4,28 @@
  * Last Edit: 5/24/2023
  * Edited to show all Images & Sprites
  */
-
+import java.util.List;
+import java.util.ArrayList;
 public class Grid{
-  
   private int rows;
   private int cols;
   private GridTile[][] board;
+  private int lootTimer = 60000;
+  private String[][] template = {
+    {"x","x","","","","","","","","","","x","x"},
+    {"x","▉","","▉","","▉","","▉","","▉","","▉","x"},
+    {"","","","","","","","","","","","",""},
+    {"","▉","","▉","","▉","","▉","","▉","","▉",""},
+    {"","","","","","","","","","","","",""},
+    {"","▉","","▉","","▉","","▉","","▉","","▉",""},
+    {"","","","","","","","","","","","",""},
+    {"","▉","","▉","","▉","","▉","","▉","","▉",""},
+    {"","","","","","","","","","","","",""},
+    {"x","▉","","▉","","▉","","▉","","▉","","▉","x"},
+    {"x","x","","","","","","","","","","x","x"}
+  };
+  //Formula for map generation, with x giving an empty space and squares creating indestructible walls.
+  private Block[][] blocklist;
   
 
   //Grid constructor that will create a Grid with the specified number of rows and cols
@@ -17,6 +33,7 @@ public class Grid{
     this.rows = rows;
     this.cols = cols;
     board = new GridTile[rows][cols];
+    blocklist = new Block[rows][cols];
     
     for(int r=0; r<rows; r++){
       for(int c=0; c<cols; c++){
@@ -25,20 +42,119 @@ public class Grid{
     }
   }
 
+  public void generateLevel()
+  {
+    PImage wall = loadImage("images/bricks.jpg");
+    wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+    PImage fire = loadImage("images/fireblu.png");
+    fire.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+    for (int x = 0; x < rows; x++){
+      for (int y = 0; y < cols; y++){
+        if (template[x][y].equals("") && Math.random() < .9){
+
+          blocklist[x][y] = new Block(fire,x,y,"Fire");
+        }
+        else if (template[x][y].equals("▉")){
+          blocklist[x][y] = new Block(wall,x,y,"Wall");
+        }
+      }
+    }
+  }
+  public void populateItems(){
+    String[] items = new String[3];
+    for (int i = 0; i < 3; i++){
+      if (this.allFilled()){
+        break;
+      }
+      int rndx = new Random().nextInt(rows);
+      int rndy = new Random().nextInt(cols);
+      String pow = this.getRandomPower();
+      if (blocklist[rndx][rndy] != null || this.hasItem(items,pow)){
+        i--;
+        continue;
+      }
+      PImage powimage = loadImage("images/"+pow+".png");
+      powimage.resize(this.getTileWidthPixels(),this.getTileHeightPixels()); 
+      blocklist[rndx][rndy] = new Block(powimage,new GridLocation(rndx,rndy),pow);
+      items[i] = pow;
+    }
+  }
+  public String getRandomPower(){
+    int rnd = new Random().nextInt(rarepowers.length);
+    return rarepowers[rnd];
+}
+
+public boolean hasItem(String[] haystack, String needle){
+  for (int i = 0; i < haystack.length; i++){
+    if (haystack[i] != null && haystack[i].equals(needle)){
+      return true;
+    }
+  }
+  return false;
+}
+public boolean allFilled(){
+  for (int r = 0; r < rows; r++){
+    for (int c = 0; c < cols; c++){
+      if (blocklist[r][c] == null){
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+  public void addBlock(Block b){
+    GridLocation loc = b.getLocation();
+    int x = loc.getRow();
+    int y = loc.getCol();
+    blocklist[x][y] = b;
+    //System.out.println(b);
+    //System.out.println(blocklist[x][y]);
+  }
+
+  public void update(int dt){
+    lootTimer-=dt;
+    if (lootTimer <= 0){
+      lootTimer = 30000;
+      populateItems();
+    }
+    
+  }
+
+  
   // Default Grid constructor that creates a 3x3 Grid  
   public Grid(){
      this(3,3);
   }
 
- 
+  public Block[][] getBList(){
+    return blocklist;
+  }
+  public void updateBList(GridLocation oldL, GridLocation newL){
+    int oldx = oldL.getRow();
+    int oldy = oldL.getCol();
+    int newx = newL.getRow();
+    int newy = newL.getCol();
+    blocklist[newx][newy] = blocklist[oldx][oldy];
+    blocklist[oldx][oldy] = null;
+  }
+  public void resetBList(){
+    for (int r = 0; r < rows; r++){
+      for (int c = 0; c < cols; c++){
+        blocklist[r][c] = null;
+      }
+    }
+  }
   // Method that Assigns a String mark to a location in the Grid.  
   // This mark is not necessarily visible, but can help in tracking
   // what you want recorded at each GridLocation.
   public void setMark(String mark, GridLocation loc){
     board[loc.getRow()][loc.getCol()].setNewMark(mark);
-    printGrid();
+    //printGrid();
   } 
-
+  public void resetLootTimer(){
+    lootTimer = 60000;
+  }
   // Method that Assigns a String mark to a location in the Grid.  
   // This mark is not necessarily visible, but can help in tracking
   // what you want recorded at each GridLocation.  
@@ -48,6 +164,17 @@ public class Grid{
     int col = loc.getCol();
     boolean isGoodClick = board[row][col].setNewMark(mark);
     printGrid();
+    return isGoodClick;
+  }
+  public String getMark(GridLocation loc){
+    return board[loc.getRow()][loc.getCol()].getMark();
+  }
+  public boolean removeMark(GridLocation loc){
+    boolean isGoodClick = board[loc.getRow()][loc.getCol()].removeMark();
+    return isGoodClick;
+  }
+  public boolean hasMark(GridLocation loc){
+    boolean isGoodClick = board[loc.getRow()][loc.getCol()].getMark() != " ";
     return isGoodClick;
   } 
   

@@ -71,6 +71,16 @@ public class GridTile{
       return false;
     }
   }
+
+  public boolean removeMark(){
+    if(this.mark.equals(noMark)){
+      return false;
+    }
+    else{
+      this.mark = noMark;
+      return true;
+    }
+  }
   
   //------------------PImage Methods ---------------//
   // Mutator method that sets a new PImage in the GridTile

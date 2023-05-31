@@ -10,7 +10,7 @@ public class Grid{
   private int rows;
   private int cols;
   private GridTile[][] board;
-  private int lootTimer = 60000;
+  private int lootTimer = 120000;
   private String[][] template = {
     {"x","x","","","","","","","","","","x","x"},
     {"x","▉","","▉","","▉","","▉","","▉","","▉","x"},
@@ -115,7 +115,7 @@ public boolean allFilled(){
   public void update(int dt){
     lootTimer-=dt;
     if (lootTimer <= 0){
-      lootTimer = 30000;
+      lootTimer = 60000;
       populateItems();
     }
     

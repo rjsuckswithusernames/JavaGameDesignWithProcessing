@@ -5,11 +5,24 @@
 
 import java.util.concurrent.*;
 import processing.sound.*;
+//UI Variables
+int playX,playY;
+int playSizeX = 400;
+int playSizeY = 150;
+int instructX, instructY;
+int instructSizeX = 300;
+int instructSizeY = 100;
+color playColor, instructColor;
+color playShade, instructShade;
+boolean playOver = false;
+boolean instructOver = false;
+
 
 //GAME VARIABLES
 private int msElapsed = 0;
 boolean canpause = true;
 protected int gamestate = 0; // 0: Main Menu, 1: Game, 2: Paused, 3: Game-Over
+protected int submenu = 0; // 0: Title, 1: Instructions
 
 int maximumx = 11;
 int maximumy = 13;
@@ -20,6 +33,8 @@ PImage bg;
 
 Player player1;
 Player player2;
+int p1score = 0;
+int p2score = 0;
 PImage endScreen;
 String titleText = "Fire Fighters";
 String extraText = "real";
@@ -126,6 +141,7 @@ int esc = 27;
 
 
 
+
 //Required Processing method that gets run once
 void setup() {
   frameRate(60);
@@ -138,6 +154,7 @@ void setup() {
   bg = loadImage("images/werksugvfuywegg.jpg");
   bg.resize(800,600);
   endScreen = loadImage("images/youwin.png");
+  setupButtons();
   reset();
   pausesound = new SoundFile(this, "sounds/Pause.wav");
   kicksound = new SoundFile(this, "sounds/Kick.wav");
@@ -229,7 +246,7 @@ void keyPressed(){
     
   }
   }
-  if (gamestate != 1 ){
+  if (gamestate != 1 && gamestate != 0){
     if (keyCode == esc){
       key = 0;
       if (canpause == true){
@@ -258,12 +275,26 @@ void keyPressed(){
     //what to do if clicked? (Make player1 disappear?)
     if (gamestate != 1){
       if (gamestate != 2){
-        reset();
+        if (gamestate == 0){
+          if (playOver){
+            reset();
+            gamestate = 1;
+          }
+        }
+        else{
+          reset();
+          gamestate = 1;
+        }
       }
       else  {
-          pausesound.play();
+        pausesound.play();
+        if (playOver) {
+          gamestate = 1;
+        } else {
+          gamestate = 0;
+        }
+
       }
-      gamestate = 1;
     }
 
     //Toggle the animation on & off
@@ -272,11 +303,49 @@ void keyPressed(){
     //grid.setMark("X",grid.getGridLocation());
     
   }
+
+  boolean overRect(int x, int y, int width, int height)  {
+    if (mouseX >= x && mouseX <= x+width && 
+        mouseY >= y && mouseY <= y+height) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   void initgame(){
     background(bg);
     textSize(64);
     textAlign(CENTER);
-    text("Click to start", 800/2, 600/2);
+    fill(0);
+    text("Fire Fighters", 800/2, 600/5);
+    if (overRect(playX,playY, playSizeX, playSizeY)){
+      playOver = true;
+      instructOver = false;
+    } else if (overRect(instructX,instructY, instructSizeX, instructSizeY)){
+      playOver = false;
+      instructOver = true;
+    } else {
+      playOver = instructOver = false;
+    }
+    if (playOver){
+      fill(playShade);
+    } else {
+      fill(playColor);
+    }
+    rect(playX, playY, playSizeX, playSizeY,5);
+    fill(0);
+    text("Play",800/2,600/2);
+    if (instructOver){
+      fill(instructShade);
+    } else {
+      fill(instructColor);
+    }
+    rect(instructX, instructY, instructSizeX, instructSizeY,5);
+    fill(0);
+    textSize(48);
+    text("Instructions",800/2,600/1.25);
+    //text("Fire Fighters", 800/2, 600/1.25);
   }
 void playinggame(int dt){
 
@@ -301,11 +370,42 @@ void playinggame(int dt){
   if (gamestate == 2){
     textSize(64);
     textAlign(CENTER);
-    text("Paused", 800/2, 600/2);
+    fill(255);
+textSize(64);
+    textAlign(CENTER);
+    fill(255);
+    text("Paused", 800/2, 600/5);
+    if (overRect(playX,playY, playSizeX, playSizeY)){
+      playOver = true;
+      instructOver = false;
+    } else if (overRect(instructX,instructY, instructSizeX, instructSizeY)){
+      playOver = false;
+      instructOver = true;
+    } else {
+      playOver = instructOver = false;
+    }
+    if (playOver){
+      fill(playShade);
+    } else {
+      fill(playColor);
+    }
+    rect(playX, playY, playSizeX, playSizeY,5);
+    fill(0);
+    text("Continue",800/2,600/2);
+    if (instructOver){
+      fill(instructShade);
+    } else {
+      fill(instructColor);
+    }
+    rect(instructX, instructY, instructSizeX, instructSizeY,5);
+    fill(0);
+    textSize(48);
+    text("Quit",800/2,600/1.25);
   }
   if (gamestate == 3){
     textSize(64);
     textAlign(CENTER);
+    fill(0);
     if (player2.isLiving() && !(player1.isLiving())){
       text("Player 2 Wins!", 800/2, 600/2);
     } else if (!(player2.isLiving()) && player1.isLiving()) {
@@ -359,6 +459,16 @@ public void updateTitleBar(){
 
 }
 
+void setupButtons(){
+  instructColor = color(255,0,0);
+  playColor = color(0,255,0);
+  instructShade = color(200,0,0);
+  playShade = color(0,200,0);
+  playX = 800/2-playSizeX/2;
+  playY = 600/2-playSizeY/2;
+  instructX = 800/2-instructSizeX/2;
+  instructY = 480-playSizeY/2;
+}
 //method to update what is drawn on the screen each frame
 public void updateScreen(){
 

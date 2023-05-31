@@ -2,26 +2,31 @@
  * Designed to be used with Spritesheets & JSON Array files from TexturePacker software: 
  * https://free-tex-packer.com/app/
  * Inspired by Daniel Shiffman's p5js Animated Sprite tutorial: https://youtu.be/3noMeuufLZY
- * Author: Joel Bianchi
- * Last Edit: 5/22/2023
+ * Author: Joel Bianchi, Aiden Sing, Tahlei Richardson
+ * Last Edit: 5/31/2023
+ * Edited jsonFile renamed to jsonFile
+ * Variable to track animation speed
  */
  
 public class AnimatedSprite extends Sprite{
   
-    private String jsonPath;
+    private String jsonFile;
     private ArrayList<PImage> animation;
+    // private int w;
+    // private int h;
     private int len;
-    private float i_bucket;
+    private float iBucket;
+    private float aSpeed; //variable to track how quickly the animation images cycle
 
     JSONObject spriteData;
     PImage spriteSheet;
 
-  // Constructor for AnimatedSprite with Spritesheet (Must use the TexturePacker to make the JSON)
+  // Constructor #1 for AnimatedSprite with Spritesheet (Must use the TexturePacker to make the JSON)
   // https://www.codeandweb.com/texturepacker
-  public AnimatedSprite(String png, float x, float y, String json) {
+  public AnimatedSprite(String png, String json, float x, float y ) {
     super(png, x, y, 1.0, true);
-
-    this.jsonPath = json;
+    
+    this.jsonFile = json;
     this.animation = new ArrayList<PImage>();
  
     spriteData = loadJSONObject(json);
@@ -44,28 +49,41 @@ public class AnimatedSprite extends Sprite{
       PImage img = spriteSheet.get(sX, sY, sW, sH);
       animation.add(img);
 
+      // this.w = this.animation.get(0).width;
+      // this.h = this.animation.get(0).height;
       this.len = this.animation.size();
-      this.i_bucket = 0;
+      this.iBucket = 0.0;
+      this.aSpeed = 0.0;
     }
-    
     super.setW(this.animation.get(0).width);
     super.setH(this.animation.get(0).height);
     super.setLeft(x);
     super.setTop(y);
     //System.out.println("AS w: " + super.getW() + ",h: " + super.getH());
+
   }
 
-  
+  // Constructor #2 taking in images and json only
+  public AnimatedSprite(String png, String json) {
+    this(png, 0.0, 0.0, json);
+  }
+
+  // Legacy Constructor for 2022 version
+    public AnimatedSprite(String png, float x, float y, String json) {
+      this(png, json, x, y);
+    }
+
+
   //Overriden method: Displays the correct frame of the Sprite image on the screen
   public void show() {
-    int index = (int) Math.floor(Math.abs(this.i_bucket)) % this.len;
+    int index = (int) Math.floor(Math.abs(this.iBucket)) % this.len;
     image(animation.get(index), super.getLeft(), super.getTop());
     //System.out.println("Pos: "+ super.getX() +"," + super.getY());
   } 
 
   //Method to cycle through the images of the animated sprite
   public void animate(float animationSpeed){
-    i_bucket +=  animationSpeed * 1;
+    iBucket +=  animationSpeed * aSpeed;
     show();
   }
 
@@ -94,9 +112,15 @@ public class AnimatedSprite extends Sprite{
   }
 
   //Accessor method for the JSON path
-  public String getJsonPath(){
-    return this.jsonPath;
+  public String getJsonFile(){
+    return this.jsonFile;
   }
+  
+  //Mutator method for the speed of the animation -Aiden Sing & Tahlei Richardson, 2023
+  public void setAnimationSpeed(float aSpeed) {
+    this.aSpeed = aSpeed;
+  }
+  
 
   //---------------------PRIVATE HELPER METHODS--------------------------//
 
@@ -117,5 +141,6 @@ public class AnimatedSprite extends Sprite{
       super.setBottom( height );
     }
   }
+
 
 }

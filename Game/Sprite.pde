@@ -1,16 +1,18 @@
 /* Sprite class - to create objects that move around with their own properties
  * Inspired by Daniel Shiffman's p5js Animated Sprite tutorial
  * Author: Joel Bianchi
- * Last Edit: 5/23/22
+ * Last Edit: 5/31/22
  * Modified to account for picture coordinates at Top, Left corner
+ * Added Constructor #3
+ * spriteImgPath renamed to spriteImgFile
  */
 
 public class Sprite {
   
     PImage spriteImg;
-    private String spriteImgPath;
-    private float center_x = 0.0;
-    private float center_y = 0.0;
+    private String spriteImgFile;
+    private float center_x;
+    private float center_y;
     private float speed_x;
     private float speed_y;
     private float w;
@@ -19,16 +21,15 @@ public class Sprite {
 
 
   // Main Constructor
-  public Sprite(String spriteImgPath, float scale, float x, float y, boolean isAnimated) {
-    this.spriteImgPath = spriteImgPath;
+  public Sprite(String spriteImgFile, float scale, float x, float y, boolean isAnimated) {
+    this.spriteImgFile = spriteImgFile;
     setLeft(x);
     setTop(y);
-    System.out.println("AS topleft: "+getLeft()+","+getTop());
     this.speed_x = 0;
     this.speed_y = 0;
     this.isAnimated = isAnimated;
     if(!isAnimated){
-      this.spriteImg = loadImage(spriteImgPath);
+      this.spriteImg = loadImage(spriteImgFile);
       w = spriteImg.width * scale;
       h = spriteImg.height * scale;
     }
@@ -36,8 +37,13 @@ public class Sprite {
   }
 
   // Simpler Constructor for Non-Animated Sprite
-  public Sprite(String spriteImgPath, float x, float y) {
-    this(spriteImgPath, 1.0, x, y, false);
+  public Sprite(String spriteImgFile, float x, float y) {
+    this(spriteImgFile, 1.0, x, y, false);
+  }
+
+  //Constructor #3: Only pass in the image
+  public Sprite(String spriteImgFile){
+    this(spriteImgFile, 0.0, 0.0);
   }
 
 
@@ -146,7 +152,7 @@ public class Sprite {
 
   //Accessor method to the image path of the Sprite
   public String getImagePath(){
-    return this.spriteImgPath;
+    return this.spriteImgFile;
   }
   
   //Accessor method to the image path of the Sprite
@@ -154,9 +160,10 @@ public class Sprite {
     return this.spriteImg;
   }
 
+
   // //Method to check if 2 Sprites are the same (based on String)
   // public boolean equals(Sprite otherSprite){
-  //   if(this.spriteImgPath.equals(otherSprite.getImagePath())){
+  //   if(this.spriteImgFile.equals(otherSprite.getImagePath())){
   //     return true;
   //   }
   //   return false;
@@ -164,14 +171,14 @@ public class Sprite {
 
   //Method to check if 2 Sprites are the same (based on PImage)
   public boolean equals(Sprite otherSprite){
-    if(this.spriteImg.equals(otherSprite.getImage())){
+    if(this.spriteImgFile != null && otherSprite != null && this.spriteImgFile.equals(otherSprite.getImagePath())){
       return true;
     }
     return false;
   }
 
   public String toString(){
-    return spriteImgPath + "\t" + getLeft() + "\t" + getTop() + "\t" + speed_x + "\t" + speed_y + "\t" + w + "\t" + h + "\t" + isAnimated;
+    return spriteImgFile + "\t" + getLeft() + "\t" + getTop() + "\t" + speed_x + "\t" + speed_y + "\t" + w + "\t" + h + "\t" + isAnimated;
   }
 
 }

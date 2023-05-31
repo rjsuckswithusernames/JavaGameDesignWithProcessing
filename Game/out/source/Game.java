@@ -31,7 +31,7 @@ public class Game extends PApplet {
  * Last Edit: 12/13/2022
  * Authors: Raymond Morel, Muhammad Zahid
  */
-
+//TODO: Add instructions.
 
 
 //UI Variables
@@ -130,7 +130,6 @@ protected String[] rarepowers = {
   "PiercingBalloon",
   "RollerBlades",
   "PackOfBalloons",
-  "Sponge",
   "WaterTank"
 };
 
@@ -346,7 +345,7 @@ public void keyPressed(){
     background(bg);
     textSize(64);
     textAlign(CENTER);
-    fill(0);
+    fill(255);
     text("Fire Fighters", 800/2, 600/5);
     if (overRect(playX,playY, playSizeX, playSizeY)){
       playOver = true;
@@ -374,7 +373,6 @@ public void keyPressed(){
     fill(0);
     textSize(48);
     text("Instructions",800/2,600/1.25f);
-    //text("Fire Fighters", 800/2, 600/1.25);
   }
 public void playinggame(int dt){
 

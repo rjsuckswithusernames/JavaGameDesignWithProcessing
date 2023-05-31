@@ -2,7 +2,7 @@
  * Last Edit: 12/13/2022
  * Authors: Raymond Morel, Muhammad Zahid
  */
-
+//TODO: Add instructions.
 import java.util.concurrent.*;
 import processing.sound.*;
 //UI Variables
@@ -101,7 +101,6 @@ protected String[] rarepowers = {
   "PiercingBalloon",
   "RollerBlades",
   "PackOfBalloons",
-  "Sponge",
   "WaterTank"
 };
 
@@ -317,7 +316,7 @@ void keyPressed(){
     background(bg);
     textSize(64);
     textAlign(CENTER);
-    fill(0);
+    fill(255);
     text("Fire Fighters", 800/2, 600/5);
     if (overRect(playX,playY, playSizeX, playSizeY)){
       playOver = true;
@@ -345,7 +344,6 @@ void keyPressed(){
     fill(0);
     textSize(48);
     text("Instructions",800/2,600/1.25);
-    //text("Fire Fighters", 800/2, 600/1.25);
   }
 void playinggame(int dt){
 

@@ -112,7 +112,7 @@ public class AnimatedSprite extends Sprite{
   }
 
   //Accessor method for the JSON path
-  public String getjsonFile(){
+  public String getJsonFile(){
     return this.jsonFile;
   }
   

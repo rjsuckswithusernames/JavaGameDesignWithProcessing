@@ -947,14 +947,24 @@ public String getRandomPower(){
           if (eloc.equals(player2.getLocation())  && !(player2 == owner && player2.selfHarm() != true)){
             p2hit = true;
           }
-          if (p1hit == true && p1cd == false){
-            player1.hurtPlayer();
-            p1cd = true;
-          }
-          if (p2hit == true && p2cd == false){
-            player2.hurtPlayer();
-            p1cd = true;
-          }
+    if (p1hit == true && p1cd == false){
+      if (owner != null && owner.areBombsStrong() == true && owner != player1){
+        player1.hurtPlayer(2);
+      }
+      else{
+        player1.hurtPlayer();
+      }
+      p1cd = true;
+    }
+    if (p2hit == true && p2cd == false){
+      if (owner != null && owner.areBombsStrong() == true && owner != player2){
+        player2.hurtPlayer(2);
+      }
+      else{
+        player2.hurtPlayer();
+      }
+      p2cd = true;
+    }
           if (cell.getType().equals("Balloon")){
             //System.out.println(cell.isAlive());
             if (cell.isAlive() == true){

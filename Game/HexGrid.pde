@@ -3,7 +3,7 @@
  * https://github.com/CSRessel/catan/blob/master/src/gui/CatanBoard.java
  * Adapted for Processing
  * Authors: Joel Bianchi, Naomi Gaylor, Ezzeldin Moussa
- * Last Edit: 5/16/2023
+ * Last Edit: 5/31/2023
  * NOT FULLY FUNCTIONAL YET
  */
 
@@ -180,7 +180,7 @@ public class HexGrid {
 	//method to fill in 1 hex tile
     public void fillOneHex(HexTile hTile){
 
-        boolean hasImage = hTile.isCoveredWithPic();
+        boolean hasImage = hTile.hasImage();
 		//System.out.println("drawHex: x:"+tile.getLocation().getXCoord()+",y:"+tile.getLocation().getYCoord());
 		
         //FILL IN SOLID COLOR - fill in hexTile with a solid color if no picture

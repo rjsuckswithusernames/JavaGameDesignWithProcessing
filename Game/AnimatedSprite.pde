@@ -2,10 +2,10 @@
  * Designed to be used with Spritesheets & JSON Array files from TexturePacker software: 
  * https://free-tex-packer.com/app/
  * Inspired by Daniel Shiffman's p5js Animated Sprite tutorial: https://youtu.be/3noMeuufLZY
- * Author: Joel Bianchi, Aiden Sing, Tahlei Richardson
+ * Authors: Joel Bianchi, Aiden Sing, Tahlei Richardson
  * Last Edit: 5/31/2023
  * Edited jsonFile renamed to jsonFile
- * Variable to track animation speed
+ * Revised Variable to track animation speed
  */
  
 public class AnimatedSprite extends Sprite{
@@ -22,8 +22,7 @@ public class AnimatedSprite extends Sprite{
     PImage spriteSheet;
 
   // Constructor #1 for AnimatedSprite with Spritesheet (Must use the TexturePacker to make the JSON)
-  // https://www.codeandweb.com/texturepacker
-  public AnimatedSprite(String png, String json, float x, float y ) {
+  public AnimatedSprite(String png, String json, float x, float y, float aSpeed) {
     super(png, x, y, 1.0, true);
     
     this.jsonFile = json;
@@ -53,7 +52,7 @@ public class AnimatedSprite extends Sprite{
       // this.h = this.animation.get(0).height;
       this.len = this.animation.size();
       this.iBucket = 0.0;
-      this.aSpeed = 0.0;
+      this.aSpeed = aSpeed;
     }
     super.setW(this.animation.get(0).width);
     super.setH(this.animation.get(0).height);
@@ -63,35 +62,53 @@ public class AnimatedSprite extends Sprite{
 
   }
 
-  // Constructor #2 taking in images and json only
+  //Constructor #2: animations + starting coordinates
+  public AnimatedSprite(String png, String json, float x, float y ) {
+    this(png, json, x, y, 1.0);
+  }
+
+  // Constructor #3 taking in images and json only
   public AnimatedSprite(String png, String json) {
     this(png, 0.0, 0.0, json);
   }
 
   // Legacy Constructor for 2022 version
-    public AnimatedSprite(String png, float x, float y, String json) {
-      this(png, json, x, y);
-    }
+  public AnimatedSprite(String png, float x, float y, String json) {
+    this(png, json, x, y);
+  }
 
 
   //Overriden method: Displays the correct frame of the Sprite image on the screen
   public void show() {
     int index = (int) Math.floor(Math.abs(this.iBucket)) % this.len;
     image(animation.get(index), super.getLeft(), super.getTop());
+    //System.out.println("aSpeed: "+ aSpeed+"\tib: "+iBucket+"\t ind: "+ index);
     //System.out.println("Pos: "+ super.getX() +"," + super.getY());
   } 
 
-  //Method to cycle through the images of the animated sprite
+  //Method to cycle through the images of the animated sprite & reset a new animation speed
   public void animate(float animationSpeed){
-    iBucket +=  animationSpeed * aSpeed;
+    this.aSpeed = animationSpeed;
+    animate();
+  }
+
+  //Method to cycle through the images of the animated sprite
+  public void animate(){
+    iBucket += aSpeed/this.len;
     show();
   }
 
-  //Method that makes animated sprite move in any straight line
+  //Method that makes animated sprite move in any straight line + sets animation speed
   public void animateMove(float hSpeed, float vSpeed, float animationSpeed, boolean wraparound){
+    this.aSpeed = animationSpeed;
+    animateMove(hSpeed, vSpeed, wraparound);
+  }
+  
+  //Method that makes animated sprite move in any straight line
+  public void animateMove(float hSpeed, float vSpeed, boolean wraparound){
     
     //adjust speed & frames
-    animate(animationSpeed);
+    animate();
     super.move( (int) (hSpeed * 10), (int) (vSpeed * 10) );
   
     //wraparound sprite if goes off the right or left
@@ -120,6 +137,15 @@ public class AnimatedSprite extends Sprite{
   public void setAnimationSpeed(float aSpeed) {
     this.aSpeed = aSpeed;
   }
+
+  //Method to resize the animated sprite images to different dimensions
+  public void resize(int x, int y){
+    for(int i=0; i<animation.size(); i++){
+      PImage pi = animation.get(i);
+      pi.resize(x,y);
+    }
+  }
+  
   
 
   //---------------------PRIVATE HELPER METHODS--------------------------//

@@ -165,7 +165,7 @@ public boolean allFilled(){
     boolean isGoodClick = board[row][col].setNewMark(mark);
     printGrid();
     return isGoodClick;
-  }
+  } 
   public String getMark(GridLocation loc){
     return board[loc.getRow()][loc.getCol()].getMark();
   }
@@ -339,7 +339,7 @@ public boolean allFilled(){
   public void showTileSprite(GridLocation loc){
     GridTile tile = getTile(loc);
     if(tile.hasSprite()){
-      tile.getSprite().animateMove(0.0, 0.0, 1.0, true);
+      tile.getSprite().animate();
     }
   }
 

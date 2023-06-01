@@ -309,6 +309,7 @@ public String getRandomPower(){
       }
     }
     }
+    boomSound.stop();
     boomSound.play();
     if (p1hit == true && p1cd == false){
       if (owner != null && owner.areBombsStrong() == true && owner != player1){

@@ -246,6 +246,7 @@ void keyPressed(){
       gamestate = 2;
       Runnable pause = () -> resetPause();
       executorService.schedule(pause, 500, TimeUnit.MILLISECONDS);
+      pausesound.stop();
       pausesound.play();
     }
 
@@ -261,6 +262,7 @@ void keyPressed(){
         reset();
       }
       else{
+        pausesound.stop();
         pausesound.play();
       }
       gamestate = 1;
@@ -299,6 +301,7 @@ void keyPressed(){
         }
       }
       else  {
+        pausesound.stop();
         pausesound.play();
         if (playOver) {
           gamestate = 1;
@@ -685,6 +688,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
     Block b = blocklist[x][y];
       if (b != null && b.getType().equals("Raincoat")){
         moving.addLife();
+        lifeSound.stop();
         lifeSound.play();
         blocklist[x][y] = null;
       }
@@ -739,6 +743,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
           int dirx = x - moving.getX();
           int diry = y - moving.getY();
           movable.pushBomb(dirx,diry);
+          kicksound.stop();
           kicksound.play();
         }
       }
@@ -752,6 +757,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
 
 }
 public void placeBomb(Player placer){
+    placeSound.stop();
     placeSound.play();
     placer.addBomb();
     PImage wall = loadImage("images/balloon.png");

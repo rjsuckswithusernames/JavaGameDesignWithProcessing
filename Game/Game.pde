@@ -107,7 +107,8 @@ protected String[] rarepowers = {
   "PiercingBalloon",
   "RollerBlades",
   "PackOfBalloons",
-  "WaterTank"
+  "WaterTank",
+  "Sponge"
 };
 
 //SOUNDS

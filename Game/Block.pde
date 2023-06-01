@@ -235,6 +235,80 @@ public String getRandomPower(){
         
       }
     }
+    if (owner != null && owner.otherDirs() == true){
+          for (int[] dir : extradirs){
+      for(int i = 0; i <= radius; i++){
+        int x = this.getX() + dir[0] * i;
+        int y = this.getY() + dir[1] * i;
+        if (x < 0 || x >= grid.getNumRows() || y < 0 || y >= grid.getNumCols()){
+          continue;
+        }
+        Block cell = blocklist[x][y];
+        //System.out.println(cell);
+        if (cell == null)
+        {
+          blocklist[x][y] = new Block(exp,x,y,"Explosion");
+                    GridLocation eloc = new GridLocation(x,y);
+          if (eloc.equals(player1.getLocation()) && !(player1 == owner && player1.selfHarm() != true)){
+            p1hit = true;
+          }
+          if (eloc.equals(player2.getLocation()) && !(player2 == owner && player2.selfHarm() != true)){
+            p2hit = true;
+          }
+          continue;
+          
+        }
+        
+          if (cell.getType().equals("Fire")){
+            blocklist[x][y] = new Block(exp,x,y,"Explosion", owner);
+            if (owner != null && owner.canPierce() == true){
+              continue;
+            }
+            break;
+          }
+          if (cell.getType().equals("Wall")){
+            if (owner != null && owner.canPierce() == true){
+              continue;
+            }
+            break;
+          }
+
+          GridLocation eloc = new GridLocation(x,y);
+          if (eloc.equals(player1.getLocation()) && !(player1 == owner && player1.selfHarm() != true)){
+            p1hit = true;
+          }
+          if (eloc.equals(player2.getLocation())  && !(player2 == owner && player2.selfHarm() != true)){
+            p2hit = true;
+          }
+    if (p1hit == true && p1cd == false){
+      if (owner != null && owner.areBombsStrong() == true && owner != player1){
+        player1.hurtPlayer(2);
+      }
+      else{
+        player1.hurtPlayer();
+      }
+      p1cd = true;
+    }
+    if (p2hit == true && p2cd == false){
+      if (owner != null && owner.areBombsStrong() == true && owner != player2){
+        player2.hurtPlayer(2);
+      }
+      else{
+        player2.hurtPlayer();
+      }
+      p2cd = true;
+    }
+          if (cell.getType().equals("Balloon")){
+            //System.out.println(cell.isAlive());
+            if (cell.isAlive() == true){
+              blocklist[x][y].Explode(p1hit,p2hit);
+            }
+          }
+
+        
+      }
+    }
+    }
     boomSound.play();
     if (p1hit == true && p1cd == false){
       if (owner != null && owner.areBombsStrong() == true && owner != player1){

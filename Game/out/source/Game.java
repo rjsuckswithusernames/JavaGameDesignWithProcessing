@@ -32,7 +32,6 @@ public class Game extends PApplet {
  * Last Edit: 12/13/2022
  * Authors: Raymond Morel, Muhammad Zahid
  */
-//TODO: Add instructions.
 
 
 //UI Variables
@@ -77,6 +76,13 @@ protected int[][] dirs =
   {1,0}, //down
   {0,-1}, //left
   {0,1} //right
+};
+protected int[][] extradirs = 
+{
+  {-1,-1}, // up-left
+  {-1,1}, // up-right
+  {1,-1}, // down-left
+  {1,1} // down-right
 };
 ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 protected String[] powers = {
@@ -172,7 +178,7 @@ int esc = 27;
 
 
 //Required Processing method that gets run once
- public void setup() {
+public void setup() {
   frameRate(60);
   //Match the screen size to the background image size
   /* size commented out by preprocessor */;
@@ -210,7 +216,7 @@ int esc = 27;
 
 //Required Processing method that automatically loops
 //(Anything drawn on the screen should be called from here)
- public void draw() {
+public void draw() {
   delta = millis() - lastTime;
   updateTitleBar();
   if (gamestate == 0){
@@ -223,7 +229,7 @@ int esc = 27;
 }
 
 //Known Processing method that automatically will run whenever a key is pressed
- public void keyPressed(){
+public void keyPressed(){
 
   //check what key was pressed
   System.out.println("Key pressed: " + keyCode); //keyCode gives you an integer for the key
@@ -295,7 +301,7 @@ int esc = 27;
 }
   
   //Known Processing method that automatically will run when a mouse click triggers it
-   public void mouseClicked(){
+  public void mouseClicked(){
   
     //check if click was successful
     System.out.println("Mouse was clicked at (" + mouseX + "," + mouseY + ")");
@@ -339,7 +345,7 @@ int esc = 27;
     
   }
 
-   public boolean overRect(int x, int y, int width, int height)  {
+  public boolean overRect(int x, int y, int width, int height)  {
     if (mouseX >= x && mouseX <= x+width && 
         mouseY >= y && mouseY <= y+height) {
       return true;
@@ -382,7 +388,7 @@ int esc = 27;
       rect(instructX, instructY, instructSizeX, instructSizeY,5);
       fill(0);
       textSize(48);
-      text("Instructions",800/2,600/1.25f);
+      text("Rules",800/2,600/1.25f);
     } else if (submenu == 1) {
       background(255);
       textSize(64);
@@ -453,7 +459,7 @@ int esc = 27;
       PImage spon = loadImage("images/Sponge.png");
       spon.resize(50,50);
       image(spon,800/2-spon.width/2, 380);
-      text("Allows you to take three more hits.",430,380+25);
+      text("Allows the explosions to go diagonally.",430,380+25);
       PImage glove = loadImage("images/BoxingGlove.png");
       glove.resize(50,50);
       image(glove,800/2-glove.width/2, 460);
@@ -465,7 +471,7 @@ int esc = 27;
     }
 
   }
- public void playinggame(int dt){
+public void playinggame(int dt){
 
   if (msElapsed % 300 == 0) {
     populateSprites();
@@ -492,7 +498,7 @@ int esc = 27;
     textSize(64);
     textAlign(CENTER);
     fill(255);
-    text("Paused", 800/2, 600/5);
+    text("Paused.", 800/2, 600/5);
     if (overRect(playX,playY, playSizeX, playSizeY)){
       playOver = true;
       instructOver = false;
@@ -534,7 +540,7 @@ int esc = 27;
   }
   }
 
-   public void reset(){
+  public void reset(){
     grid.resetBList();
     grid.resetLootTimer();
     grid.generateLevel();
@@ -624,7 +630,7 @@ public void updateScreen(){
   //update other screen elements
 
 }
-   public void resetPause(){
+  public void resetPause(){
     canpause = true;
   }
 //Method to populate enemies or other sprites on the screen
@@ -740,10 +746,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("Sponge")){
-        moving.addLife();
-        moving.addLife();
-        moving.addLife();
-        lifeSound.play();
+        moving.setDiagonal();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("WaterTank")){
@@ -1226,6 +1229,80 @@ public String getRandomPower(){
 
         
       }
+    }
+    if (owner != null && owner.otherDirs() == true){
+          for (int[] dir : extradirs){
+      for(int i = 0; i <= radius; i++){
+        int x = this.getX() + dir[0] * i;
+        int y = this.getY() + dir[1] * i;
+        if (x < 0 || x >= grid.getNumRows() || y < 0 || y >= grid.getNumCols()){
+          continue;
+        }
+        Block cell = blocklist[x][y];
+        //System.out.println(cell);
+        if (cell == null)
+        {
+          blocklist[x][y] = new Block(exp,x,y,"Explosion");
+                    GridLocation eloc = new GridLocation(x,y);
+          if (eloc.equals(player1.getLocation()) && !(player1 == owner && player1.selfHarm() != true)){
+            p1hit = true;
+          }
+          if (eloc.equals(player2.getLocation()) && !(player2 == owner && player2.selfHarm() != true)){
+            p2hit = true;
+          }
+          continue;
+          
+        }
+        
+          if (cell.getType().equals("Fire")){
+            blocklist[x][y] = new Block(exp,x,y,"Explosion", owner);
+            if (owner != null && owner.canPierce() == true){
+              continue;
+            }
+            break;
+          }
+          if (cell.getType().equals("Wall")){
+            if (owner != null && owner.canPierce() == true){
+              continue;
+            }
+            break;
+          }
+
+          GridLocation eloc = new GridLocation(x,y);
+          if (eloc.equals(player1.getLocation()) && !(player1 == owner && player1.selfHarm() != true)){
+            p1hit = true;
+          }
+          if (eloc.equals(player2.getLocation())  && !(player2 == owner && player2.selfHarm() != true)){
+            p2hit = true;
+          }
+    if (p1hit == true && p1cd == false){
+      if (owner != null && owner.areBombsStrong() == true && owner != player1){
+        player1.hurtPlayer(2);
+      }
+      else{
+        player1.hurtPlayer();
+      }
+      p1cd = true;
+    }
+    if (p2hit == true && p2cd == false){
+      if (owner != null && owner.areBombsStrong() == true && owner != player2){
+        player2.hurtPlayer(2);
+      }
+      else{
+        player2.hurtPlayer();
+      }
+      p2cd = true;
+    }
+          if (cell.getType().equals("Balloon")){
+            //System.out.println(cell.isAlive());
+            if (cell.isAlive() == true){
+              blocklist[x][y].Explode(p1hit,p2hit);
+            }
+          }
+
+        
+      }
+    }
     }
     boomSound.play();
     if (p1hit == true && p1cd == false){
@@ -2728,6 +2805,7 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     private boolean selfdamage = true;
     private boolean bombpush = false;
     private boolean strongbombs = false;
+    private boolean diagonal = false;
 
 
     //Player Status
@@ -2787,6 +2865,9 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     public long getMaxMoveTimer(){
         return maxmovetimer;
     }
+    public boolean otherDirs(){
+        return diagonal;
+    }
     public void hurtPlayer(){
         if (iframetimer <= 0){
             iframetimer = 200;
@@ -2811,8 +2892,8 @@ public class Player{    //Consider having Player extend from AnimatedSprite
         posx = l.getRow();
         posy = l.getCol();
     }
-    public void setName(){
-        
+    public void setDiagonal(){
+        diagonal = true;
     }
     public void setImage(PImage P){
         Pi = P;
@@ -3036,28 +3117,28 @@ public class Sprite {
     -- Used from Long Bao Nguyen
     -- https://longbaonguyen.github.io/courses/platformer/platformer.html
   */
-   public void setLeft(float left){
+  public void setLeft(float left){
     centerX = left + w/2;
   }
-   public float getLeft(){
+  public float getLeft(){
     return centerX - w/2;
   }
-   public void setRight(float right){
+  public void setRight(float right){
     centerX = right - w/2;
   }
-   public float getRight(){
+  public float getRight(){
     return centerX + w/2;
   }
-   public void setTop(float top){
+  public void setTop(float top){
     centerY = top + h/2;
   }
-   public float getTop(){
+  public float getTop(){
     return centerY - h/2;
   }
-   public void setBottom(float bottom){
+  public void setBottom(float bottom){
     centerY = bottom - h/2;
   }
-   public float getBottom(){
+  public float getBottom(){
     return centerY + h/2;
   }
 

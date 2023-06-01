@@ -47,6 +47,13 @@ protected int[][] dirs =
   {0,-1}, //left
   {0,1} //right
 };
+protected int[][] extradirs = 
+{
+  {-1,-1}, // up-left
+  {-1,1}, // up-right
+  {1,-1}, // down-left
+  {1,1} // down-right
+};
 ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 protected String[] powers = {
   //COMMON ITEMS
@@ -422,7 +429,7 @@ void keyPressed(){
       PImage spon = loadImage("images/Sponge.png");
       spon.resize(50,50);
       image(spon,800/2-spon.width/2, 380);
-      text("Allows you to take three more hits.",430,380+25);
+      text("Allows the explosions to go diagonally.",430,380+25);
       PImage glove = loadImage("images/BoxingGlove.png");
       glove.resize(50,50);
       image(glove,800/2-glove.width/2, 460);
@@ -709,10 +716,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("Sponge")){
-        moving.addLife();
-        moving.addLife();
-        moving.addLife();
-        lifeSound.play();
+        moving.setDiagonal();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("WaterTank")){

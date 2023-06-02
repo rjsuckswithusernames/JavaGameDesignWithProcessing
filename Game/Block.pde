@@ -93,6 +93,7 @@ public class Block {
     public boolean isAbleToUpdate(){
       return canUpdate;
     }
+    
 public void update(double dt){
   if (canUpdate == true){
     if (this == null || this.alive == false){

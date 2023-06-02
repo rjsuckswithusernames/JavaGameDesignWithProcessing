@@ -651,6 +651,9 @@ public void moveSprites(){
 
 }
 public void movePlayer(Player moving, Player opponent, int[] keys, int keyCode){
+  if (gamestate != 1){
+    return;
+  }
     blocklist = grid.getBList();
     //check case where out of bounds
     //change the field for player1Row

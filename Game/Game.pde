@@ -305,7 +305,7 @@ void keyPressed(){
         pausesound.play();
         if (playOver) {
           gamestate = 1;
-        } else {
+        } else if (instructOver) {
           gamestate = 0;
         }
 

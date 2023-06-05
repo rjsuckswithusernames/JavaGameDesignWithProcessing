@@ -306,6 +306,8 @@ void keyPressed(){
         if (playOver) {
           gamestate = 1;
         } else if (instructOver) {
+          p1score = 0;
+          p2score = 0;
           gamestate = 0;
         }
 
@@ -463,7 +465,13 @@ void playinggame(int dt){
   msElapsed +=(1/60);
   //grid.pause(1/30);
   if (isGameOver() && gamestate != 3){
+    if (player2.isLiving() && !(player1.isLiving())){
+      p2score++;
+    } else if (!(player2.isLiving()) && player1.isLiving()) {
+      p1score++;
+    }
     gamestate = 3;
+    
   }
   if (gamestate == 2){
     textSize(64);
@@ -511,6 +519,8 @@ void playinggame(int dt){
     } else {
       text("Tie!", 800/2, 600/2);
     }
+    text("Player 1: "+p1score,200,450);
+    text("Player 2: "+p2score,600,450);
   }
   }
 

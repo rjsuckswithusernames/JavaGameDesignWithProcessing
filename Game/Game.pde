@@ -118,7 +118,7 @@ SoundFile pausesound;
 SoundFile kicksound;
 SoundFile placeSound;
 SoundFile boomSound;
-SoundFile lifeSound;
+SoundFile itemSound;
 SoundFile moveSound;
 SoundFile goSound;
 //INPUTS
@@ -168,7 +168,7 @@ void setup() {
   kicksound = new SoundFile(this, "sounds/Kick.wav");
   placeSound = new SoundFile(this, "sounds/Place.wav");
   boomSound = new SoundFile(this, "sounds/Boom.wav");
-  lifeSound = new SoundFile(this, "sounds/1up.wav");
+  itemSound = new SoundFile(this, "sounds/Collect.wav");
   moveSound = new SoundFile(this, "sounds/Move.wav");
   goSound = new SoundFile(this, "sounds/gameover.wav");
   // Load a soundfile from the /data folder of the sketch and play it back
@@ -710,51 +710,73 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
     Block b = blocklist[x][y];
       if (b != null && b.getType().equals("Raincoat")){
         moving.addLife();
-        lifeSound.stop();
-        lifeSound.play();
+        itemSound.stop();
+        itemSound.play();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("Hose")){
+        itemSound.stop();
+        itemSound.play();
         moving.raiseExplosionRadius();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("SpareBalloon")){
+        itemSound.stop();
+        itemSound.play();
         moving.raiseMaxBombs();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("PiercingBalloon")){
+        itemSound.stop();
+        itemSound.play();
         moving.piercePowerup();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("HardHat")){
+        itemSound.stop();
+        itemSound.play();
         moving.sdImmunePowerup();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("BoxingGlove")){
+        itemSound.stop();
+        itemSound.play();
         moving.glovePowerup();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("Skates")){
+        itemSound.stop();
+        itemSound.play();
         moving.skatePowerup();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("RollerBlades")){
+        itemSound.stop();
+        itemSound.play();
         moving.maxMoveSpeed();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("Sponge")){
+        itemSound.stop();
+        itemSound.play();
         moving.setDiagonal();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("WaterTank")){
+        itemSound.stop();
+        itemSound.play();
         moving.setExplosionRadius(10);
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("Hydrogen")){
+        itemSound.stop();
+        itemSound.play();
         moving.strongerBombs();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("PackOfBalloons")){
+        itemSound.stop();
+        itemSound.play();
         moving.setMaxBombs(5);
         blocklist[x][y] = null;
       }

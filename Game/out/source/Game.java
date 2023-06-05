@@ -149,6 +149,8 @@ SoundFile kicksound;
 SoundFile placeSound;
 SoundFile boomSound;
 SoundFile lifeSound;
+SoundFile moveSound;
+SoundFile goSound;
 //INPUTS
 
 
@@ -197,6 +199,8 @@ public void setup() {
   placeSound = new SoundFile(this, "sounds/Place.wav");
   boomSound = new SoundFile(this, "sounds/Boom.wav");
   lifeSound = new SoundFile(this, "sounds/1up.wav");
+  moveSound = new SoundFile(this, "sounds/Move.wav");
+  goSound = new SoundFile(this, "sounds/gameover.wav");
   // Load a soundfile from the /data folder of the sketch and play it back
   // song = new SoundFile(this, "sounds/Lenny_Kravitz_Fly_Away.mp3");
   // song.play();
@@ -495,6 +499,8 @@ public void playinggame(int dt){
   msElapsed +=(1/60);
   //grid.pause(1/30);
   if (isGameOver() && gamestate != 3){
+    goSound.stop();
+    goSound.play();
     if (player2.isLiving() && !(player1.isLiving())){
       p2score++;
     } else if (!(player2.isLiving()) && player1.isLiving()) {
@@ -724,6 +730,9 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
     blocklist = grid.getBList();
     boolean move = true;
     GridLocation loc = new GridLocation(x, y);
+    if (x < 0 || x >= grid.getNumRows() || y < 0 || y >= grid.getNumCols()){
+      move = false;
+    }
     if (opponent.collisionCheck(loc) == true) {
       move = false;
     }
@@ -792,6 +801,8 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
       }
     //shift the player1 picture up in the 2D array
     if (move == true) {
+      moveSound.stop();
+      moveSound.play();
       moving.resetMoveTimer();
       moving.setX(x);
       moving.setY(y);

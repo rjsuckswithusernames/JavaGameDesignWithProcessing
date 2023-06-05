@@ -121,6 +121,7 @@ SoundFile boomSound;
 SoundFile itemSound;
 SoundFile moveSound;
 SoundFile goSound;
+SoundFile spawnSound;
 //INPUTS
 
 
@@ -171,6 +172,7 @@ void setup() {
   itemSound = new SoundFile(this, "sounds/Collect.wav");
   moveSound = new SoundFile(this, "sounds/Move.wav");
   goSound = new SoundFile(this, "sounds/gameover.wav");
+  spawnSound = new SoundFile(this, "sounds/Spawn.wav");
   // Load a soundfile from the /data folder of the sketch and play it back
   // song = new SoundFile(this, "sounds/Lenny_Kravitz_Fly_Away.mp3");
   // song.play();

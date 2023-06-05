@@ -62,6 +62,8 @@ public class Grid{
   }
   public void populateItems(){
     String[] items = new String[3];
+    spawnSound.stop();
+    spawnSound.play();
     for (int i = 0; i < 3; i++){
       if (this.allFilled()){
         break;

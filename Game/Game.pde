@@ -141,7 +141,7 @@ void setup() {
   reset();
   pausesound = new SoundFile(this, "sounds/Pause.wav");
   kicksound = new SoundFile(this, "sounds/Kick.wav");
-  placeSound = new SoundFile(this, "sounds/Place.wav");
+  placeSound = new SoundFile(this, "sounds/place.wav");
   boomSound = new SoundFile(this, "sounds/Boom.wav");
   lifeSound = new SoundFile(this, "sounds/1up.wav");
   // Load a soundfile from the /data folder of the sketch and play it back
@@ -540,6 +540,8 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
       }
     //shift the player1 picture up in the 2D array
     if (move == true) {
+      placeSound.stop();
+      placeSound.play();
       moving.resetMoveTimer();
       moving.setX(x);
       moving.setY(y);
@@ -548,6 +550,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
 
 }
 public void placeBomb(Player placer){
+    placeSound.stop();
     placeSound.play();
     placer.addBomb();
     PImage wall = loadImage("images/balloon.png");

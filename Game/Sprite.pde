@@ -1,11 +1,12 @@
 /* Sprite class - to create objects that move around with their own properties
  * Inspired by Daniel Shiffman's p5js Animated Sprite tutorial
  * Author: Joel Bianchi
- * Last Edit: 5/31/22
+ * Last Edit: 6/5/23
  * Modified to account for picture coordinates at Top, Left corner
  * Added Constructor #3
  * spriteImgPath renamed to spriteImgFile
  * variable renaming
+ * sprite copying
  */
 
 public class Sprite {
@@ -64,6 +65,13 @@ public class Sprite {
     this.centerY += changeY;
     //System.out.println(getLeft() + "," + getTop());
   }
+
+  //method to change the speed of the Sprite
+  public void setSpeed( float speedX, float speedY){
+    this.speedX = speedX;
+    this.speedY = speedY;
+  }
+
 
   // method that automatically moves the Sprite based on its velocity
   public void update(){
@@ -163,6 +171,32 @@ public class Sprite {
   //Accessor method to the image path of the Sprite
   public PImage getImage(){
     return this.spriteImg;
+  }
+
+  //Method to copy a Sprite to a specific location
+  public Sprite copyTo(float x, float y){
+
+    PImage si = this.spriteImg;
+    String sif = this.spriteImgFile;
+    float cx = this.centerX;
+    float cy = this.centerY;
+    float sx = this.speedX;
+    float sy = this.speedY;
+    float w = this.w;
+    float h = this.h;
+    boolean ia = this.isAnimated;
+    
+    Sprite sp = new Sprite(sif, 1.0, x, y, ia);
+    sp.setSpeed(sx,sy);
+    sp.setW(w);
+    sp.setH(h);
+
+    return sp;
+
+  }
+  //Method to copy a Sprite to same location
+  public Sprite copy(){
+    return copyTo(this.centerX, this.centerY);
   }
 
   //Method to check if 2 Sprites are the same (based on PImage)

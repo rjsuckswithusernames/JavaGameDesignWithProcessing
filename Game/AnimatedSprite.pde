@@ -3,17 +3,17 @@
  * https://free-tex-packer.com/app/
  * Inspired by Daniel Shiffman's p5js Animated Sprite tutorial: https://youtu.be/3noMeuufLZY
  * Authors: Joel Bianchi, Aiden Sing, Tahlei Richardson
- * Last Edit: 5/31/2023
+ * Last Edit: 6/5/2023
  * Edited jsonFile renamed to jsonFile
  * Revised Variable to track animation speed
+ * Sprite Copying
  */
  
 public class AnimatedSprite extends Sprite{
   
+    private String pngFile;
     private String jsonFile;
     private ArrayList<PImage> animation;
-    // private int w;
-    // private int h;
     private int len;
     private float iBucket;
     private float aSpeed; //variable to track how quickly the animation images cycle
@@ -26,34 +26,8 @@ public class AnimatedSprite extends Sprite{
     super(png, x, y, 1.0, true);
     
     this.jsonFile = json;
-    this.animation = new ArrayList<PImage>();
- 
-    spriteData = loadJSONObject(json);
-    spriteSheet = loadImage(png);
-    JSONArray frames = spriteData.getJSONArray("frames");
-    
-    System.out.println("Loading Animated Sprite...");
-    for(int i=0; i<frames.size(); i++){
-
-      JSONObject frame = frames.getJSONObject(i);
-      //System.out.println(i + ": " + frame + "\n");
-      JSONObject fr = frame.getJSONObject("frame");
-      //System.out.println("ss: " + fr + "\n");
-
-      int sX = fr.getInt("x");
-      int sY = fr.getInt("y");
-      int sW = fr.getInt("w");
-      int sH = fr.getInt("h");
-      System.out.println(i + ":\t sX:" + sX + ":\t sY:" + sY + ":\t sW:" + sW + ":\t sH:" + sH);
-      PImage img = spriteSheet.get(sX, sY, sW, sH);
-      animation.add(img);
-
-      // this.w = this.animation.get(0).width;
-      // this.h = this.animation.get(0).height;
-      this.len = this.animation.size();
-      this.iBucket = 0.0;
-      this.aSpeed = aSpeed;
-    }
+    this.pngFile = png;
+    this.animation = convertPngToList(png);
     super.setW(this.animation.get(0).width);
     super.setH(this.animation.get(0).height);
     super.setLeft(x);
@@ -128,6 +102,16 @@ public class AnimatedSprite extends Sprite{
     animateMove(0, verticalSpeed, animationSpeed, wraparound);
   }
 
+  //NIKO + JAIDEN
+  public void animateToPlayer(AnimatedSprite player, float animationSpeed, boolean wraparound) {
+    float xDifference = player.getCenterX() - this.getCenterX();
+    float yDifference = player.getCenterY() - this.getCenterY();
+    if ((xDifference < 100 && xDifference > -100) && (yDifference < 150 && yDifference > -150)) {
+      animateMove(xDifference/300.0, yDifference/300.0, animationSpeed, wraparound);
+    }
+    animateMove(xDifference/1000.0, yDifference/1000.0, animationSpeed, wraparound);
+  }
+
   //Accessor method for the JSON path
   public String getJsonFile(){
     return this.jsonFile;
@@ -145,7 +129,18 @@ public class AnimatedSprite extends Sprite{
       pi.resize(x,y);
     }
   }
+
+  //Method to copy an AnimatedSprite
+  public AnimatedSprite copy(){
+    //super.copy();
+    return new AnimatedSprite(this.pngFile, this.jsonFile, super.getLeft(), super.getTop(), this.aSpeed);
+  }
   
+  //Method to copy an AnimatedSprite to a specific location
+  public AnimatedSprite copyTo(float x, float y){
+    //super.copy();
+    return new AnimatedSprite(this.pngFile, this.jsonFile, x, y, this.aSpeed);
+  }
   
 
   //---------------------PRIVATE HELPER METHODS--------------------------//
@@ -167,6 +162,38 @@ public class AnimatedSprite extends Sprite{
       super.setBottom( height );
     }
   }
+
+  private ArrayList<PImage> convertPngToList(String png){
+
+      ArrayList<PImage> ani = new ArrayList<PImage>();
+      spriteData = loadJSONObject(jsonFile);
+      spriteSheet = loadImage(png);
+      JSONArray frames = spriteData.getJSONArray("frames");
+      
+      System.out.println("Loading Animated Sprite...");
+      for(int i=0; i<frames.size(); i++){
+
+        JSONObject frame = frames.getJSONObject(i);
+        //System.out.println(i + ": " + frame + "\n");
+        JSONObject fr = frame.getJSONObject("frame");
+        //System.out.println("ss: " + fr + "\n");
+
+        int sX = fr.getInt("x");
+        int sY = fr.getInt("y");
+        int sW = fr.getInt("w");
+        int sH = fr.getInt("h");
+        System.out.println(i + ":\t sX:" + sX + ":\t sY:" + sY + ":\t sW:" + sW + ":\t sH:" + sH);
+        PImage img = spriteSheet.get(sX, sY, sW, sH);
+        ani.add(img);
+
+        this.len = ani.size();
+        this.iBucket = 0.0;
+        this.aSpeed = aSpeed;
+      }
+
+      return ani;
+
+    }
 
 
 }

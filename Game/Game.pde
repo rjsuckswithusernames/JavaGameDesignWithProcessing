@@ -536,9 +536,9 @@ void playinggame(int dt){
     grid.resetBList();
     grid.resetLootTimer();
     grid.generateLevel();
-    PImage p1image = loadImage("images/x_wood.png");
+    PImage p1image = loadImage("images/player1.png");
     p1image.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-    PImage p2image = loadImage("images/spook.png");
+    PImage p2image = loadImage("images/player2.png");
     p2image.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     player1 = new Player(p1image);
     player2 = new Player(p2image,maximumx-1,maximumy-1);

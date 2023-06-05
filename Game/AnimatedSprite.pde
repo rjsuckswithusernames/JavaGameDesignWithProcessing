@@ -2,18 +2,18 @@
  * Designed to be used with Spritesheets & JSON Array files from TexturePacker software: 
  * https://free-tex-packer.com/app/
  * Inspired by Daniel Shiffman's p5js Animated Sprite tutorial: https://youtu.be/3noMeuufLZY
- * Author: Joel Bianchi, Aiden Sing, Tahlei Richardson
- * Last Edit: 5/31/2023
+ * Authors: Joel Bianchi, Aiden Sing, Tahlei Richardson
+ * Last Edit: 6/5/2023
  * Edited jsonFile renamed to jsonFile
- * Variable to track animation speed
+ * Revised Variable to track animation speed
+ * Sprite Copying
  */
  
 public class AnimatedSprite extends Sprite{
   
+    private String pngFile;
     private String jsonFile;
     private ArrayList<PImage> animation;
-    // private int w;
-    // private int h;
     private int len;
     private float iBucket;
     private float aSpeed; //variable to track how quickly the animation images cycle
@@ -22,39 +22,12 @@ public class AnimatedSprite extends Sprite{
     PImage spriteSheet;
 
   // Constructor #1 for AnimatedSprite with Spritesheet (Must use the TexturePacker to make the JSON)
-  // https://www.codeandweb.com/texturepacker
-  public AnimatedSprite(String png, String json, float x, float y ) {
+  public AnimatedSprite(String png, String json, float x, float y, float aSpeed) {
     super(png, x, y, 1.0, true);
     
     this.jsonFile = json;
-    this.animation = new ArrayList<PImage>();
- 
-    spriteData = loadJSONObject(json);
-    spriteSheet = loadImage(png);
-    JSONArray frames = spriteData.getJSONArray("frames");
-    
-    System.out.println("Loading Animated Sprite...");
-    for(int i=0; i<frames.size(); i++){
-
-      JSONObject frame = frames.getJSONObject(i);
-      //System.out.println(i + ": " + frame + "\n");
-      JSONObject fr = frame.getJSONObject("frame");
-      //System.out.println("ss: " + fr + "\n");
-
-      int sX = fr.getInt("x");
-      int sY = fr.getInt("y");
-      int sW = fr.getInt("w");
-      int sH = fr.getInt("h");
-      System.out.println(i + ":\t sX:" + sX + ":\t sY:" + sY + ":\t sW:" + sW + ":\t sH:" + sH);
-      PImage img = spriteSheet.get(sX, sY, sW, sH);
-      animation.add(img);
-
-      // this.w = this.animation.get(0).width;
-      // this.h = this.animation.get(0).height;
-      this.len = this.animation.size();
-      this.iBucket = 0.0;
-      this.aSpeed = 0.0;
-    }
+    this.pngFile = png;
+    this.animation = convertPngToList(png);
     super.setW(this.animation.get(0).width);
     super.setH(this.animation.get(0).height);
     super.setLeft(x);
@@ -63,35 +36,53 @@ public class AnimatedSprite extends Sprite{
 
   }
 
-  // Constructor #2 taking in images and json only
+  //Constructor #2: animations + starting coordinates
+  public AnimatedSprite(String png, String json, float x, float y ) {
+    this(png, json, x, y, 1.0);
+  }
+
+  // Constructor #3 taking in images and json only
   public AnimatedSprite(String png, String json) {
     this(png, 0.0, 0.0, json);
   }
 
   // Legacy Constructor for 2022 version
-    public AnimatedSprite(String png, float x, float y, String json) {
-      this(png, json, x, y);
-    }
+  public AnimatedSprite(String png, float x, float y, String json) {
+    this(png, json, x, y);
+  }
 
 
   //Overriden method: Displays the correct frame of the Sprite image on the screen
   public void show() {
     int index = (int) Math.floor(Math.abs(this.iBucket)) % this.len;
     image(animation.get(index), super.getLeft(), super.getTop());
+    //System.out.println("aSpeed: "+ aSpeed+"\tib: "+iBucket+"\t ind: "+ index);
     //System.out.println("Pos: "+ super.getX() +"," + super.getY());
   } 
 
-  //Method to cycle through the images of the animated sprite
+  //Method to cycle through the images of the animated sprite & reset a new animation speed
   public void animate(float animationSpeed){
-    iBucket +=  animationSpeed * aSpeed;
+    this.aSpeed = animationSpeed;
+    animate();
+  }
+
+  //Method to cycle through the images of the animated sprite
+  public void animate(){
+    iBucket += aSpeed/this.len;
     show();
   }
 
-  //Method that makes animated sprite move in any straight line
+  //Method that makes animated sprite move in any straight line + sets animation speed
   public void animateMove(float hSpeed, float vSpeed, float animationSpeed, boolean wraparound){
+    this.aSpeed = animationSpeed;
+    animateMove(hSpeed, vSpeed, wraparound);
+  }
+  
+  //Method that makes animated sprite move in any straight line
+  public void animateMove(float hSpeed, float vSpeed, boolean wraparound){
     
     //adjust speed & frames
-    animate(animationSpeed);
+    animate();
     super.move( (int) (hSpeed * 10), (int) (vSpeed * 10) );
   
     //wraparound sprite if goes off the right or left
@@ -111,6 +102,16 @@ public class AnimatedSprite extends Sprite{
     animateMove(0, verticalSpeed, animationSpeed, wraparound);
   }
 
+  //NIKO + JAIDEN
+  public void animateToPlayer(AnimatedSprite player, float animationSpeed, boolean wraparound) {
+    float xDifference = player.getCenterX() - this.getCenterX();
+    float yDifference = player.getCenterY() - this.getCenterY();
+    if ((xDifference < 100 && xDifference > -100) && (yDifference < 150 && yDifference > -150)) {
+      animateMove(xDifference/300.0, yDifference/300.0, animationSpeed, wraparound);
+    }
+    animateMove(xDifference/1000.0, yDifference/1000.0, animationSpeed, wraparound);
+  }
+
   //Accessor method for the JSON path
   public String getJsonFile(){
     return this.jsonFile;
@@ -119,6 +120,26 @@ public class AnimatedSprite extends Sprite{
   //Mutator method for the speed of the animation -Aiden Sing & Tahlei Richardson, 2023
   public void setAnimationSpeed(float aSpeed) {
     this.aSpeed = aSpeed;
+  }
+
+  //Method to resize the animated sprite images to different dimensions
+  public void resize(int x, int y){
+    for(int i=0; i<animation.size(); i++){
+      PImage pi = animation.get(i);
+      pi.resize(x,y);
+    }
+  }
+
+  //Method to copy an AnimatedSprite
+  public AnimatedSprite copy(){
+    //super.copy();
+    return new AnimatedSprite(this.pngFile, this.jsonFile, super.getLeft(), super.getTop(), this.aSpeed);
+  }
+  
+  //Method to copy an AnimatedSprite to a specific location
+  public AnimatedSprite copyTo(float x, float y){
+    //super.copy();
+    return new AnimatedSprite(this.pngFile, this.jsonFile, x, y, this.aSpeed);
   }
   
 
@@ -141,6 +162,38 @@ public class AnimatedSprite extends Sprite{
       super.setBottom( height );
     }
   }
+
+  private ArrayList<PImage> convertPngToList(String png){
+
+      ArrayList<PImage> ani = new ArrayList<PImage>();
+      spriteData = loadJSONObject(jsonFile);
+      spriteSheet = loadImage(png);
+      JSONArray frames = spriteData.getJSONArray("frames");
+      
+      System.out.println("Loading Animated Sprite...");
+      for(int i=0; i<frames.size(); i++){
+
+        JSONObject frame = frames.getJSONObject(i);
+        //System.out.println(i + ": " + frame + "\n");
+        JSONObject fr = frame.getJSONObject("frame");
+        //System.out.println("ss: " + fr + "\n");
+
+        int sX = fr.getInt("x");
+        int sY = fr.getInt("y");
+        int sW = fr.getInt("w");
+        int sH = fr.getInt("h");
+        System.out.println(i + ":\t sX:" + sX + ":\t sY:" + sY + ":\t sW:" + sW + ":\t sH:" + sH);
+        PImage img = spriteSheet.get(sX, sY, sW, sH);
+        ani.add(img);
+
+        this.len = ani.size();
+        this.iBucket = 0.0;
+        this.aSpeed = aSpeed;
+      }
+
+      return ani;
+
+    }
 
 
 }

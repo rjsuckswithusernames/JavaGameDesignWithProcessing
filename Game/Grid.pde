@@ -10,7 +10,7 @@ public class Grid{
   private int rows;
   private int cols;
   private GridTile[][] board;
-  private int lootTimer = 60000;
+  private int lootTimer = 120000;
   private String[][] template = {
     {"x","x","","","","","","","","","","x","x"},
     {"x","▉","","▉","","▉","","▉","","▉","","▉","x"},
@@ -115,7 +115,7 @@ public boolean allFilled(){
   public void update(int dt){
     lootTimer-=dt;
     if (lootTimer <= 0){
-      lootTimer = 30000;
+      lootTimer = 60000;
       populateItems();
     }
     
@@ -165,7 +165,7 @@ public boolean allFilled(){
     boolean isGoodClick = board[row][col].setNewMark(mark);
     printGrid();
     return isGoodClick;
-  }
+  } 
   public String getMark(GridLocation loc){
     return board[loc.getRow()][loc.getCol()].getMark();
   }
@@ -339,7 +339,7 @@ public boolean allFilled(){
   public void showTileSprite(GridLocation loc){
     GridTile tile = getTile(loc);
     if(tile.hasSprite()){
-      tile.getSprite().animateMove(0.0, 0.0, 1.0, true);
+      tile.getSprite().animate();
     }
   }
 

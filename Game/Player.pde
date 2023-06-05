@@ -17,6 +17,7 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     private boolean selfdamage = true;
     private boolean bombpush = false;
     private boolean strongbombs = false;
+    private boolean diagonal = false;
 
 
     //Player Status
@@ -76,6 +77,9 @@ public class Player{    //Consider having Player extend from AnimatedSprite
     public long getMaxMoveTimer(){
         return maxmovetimer;
     }
+    public boolean otherDirs(){
+        return diagonal;
+    }
     public void hurtPlayer(){
         if (iframetimer <= 0){
             iframetimer = 200;
@@ -100,8 +104,8 @@ public class Player{    //Consider having Player extend from AnimatedSprite
         posx = l.getRow();
         posy = l.getCol();
     }
-    public void setName(){
-        
+    public void setDiagonal(){
+        diagonal = true;
     }
     public void setImage(PImage P){
         Pi = P;

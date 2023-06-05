@@ -159,7 +159,7 @@ void setup() {
   surface.setTitle(titleText);
   //Load images used
   //bg = loadImage("images/chess.jpg");
-  bg = loadImage("images/werksugvfuywegg.jpg");
+  bg = loadImage("images/background.jpeg");
   bg.resize(800,600);
   endScreen = loadImage("images/youwin.png");
   setupButtons();

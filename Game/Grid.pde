@@ -46,7 +46,7 @@ public class Grid{
   {
     PImage wall = loadImage("images/bricks.jpg");
     wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-    PImage fire = loadImage("images/fireblu.png");
+    PImage fire = loadImage("images/Fire.png");
     fire.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     for (int x = 0; x < rows; x++){
       for (int y = 0; y < cols; y++){

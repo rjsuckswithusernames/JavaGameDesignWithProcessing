@@ -189,7 +189,7 @@ public void setup() {
   surface.setTitle(titleText);
   //Load images used
   //bg = loadImage("images/chess.jpg");
-  bg = loadImage("images/werksugvfuywegg.jpg");
+  bg = loadImage("images/background.jpeg");
   bg.resize(800,600);
   endScreen = loadImage("images/youwin.png");
   setupButtons();
@@ -1494,7 +1494,7 @@ public class Grid{
   {
     PImage wall = loadImage("images/bricks.jpg");
     wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-    PImage fire = loadImage("images/fireblu.png");
+    PImage fire = loadImage("images/Fire.png");
     fire.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     for (int x = 0; x < rows; x++){
       for (int y = 0; y < cols; y++){

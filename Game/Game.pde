@@ -677,16 +677,16 @@ public void movePlayer(Player moving, Player opponent, int[] keys, int keyCode){
     //change the field for player1Row
     int x = moving.getX();
     int y = moving.getY();
-   if (keyCode == keys[0] && moving.getX() > 0 && !(moving.getX()-1 == opponent.getX() && moving.getY()  == opponent.getY()) ){
+   if (keyCode == keys[0]){
     x--;
    }
-   if (keyCode == keys[1] && moving.getY()  > 0 && !(moving.getY()-1 == opponent.getY() && moving.getX() == opponent.getX())) {
+   if (keyCode == keys[1]) {
     y--;
    }
-   if (keyCode == keys[2] && moving.getX() < grid.getNumRows()-1 && !(moving.getX()+1 == opponent.getX() && moving.getY()  == opponent.getY())) {
+   if (keyCode == keys[2]) {
     x++;
    }
-   if (keyCode == keys[3] && moving.getY() < grid.getNumCols()-1 && !(moving.getY()+1 == opponent.getY() && moving.getX() == opponent.getX())) {
+   if (keyCode == keys[3]) {
     y++;
    }
     handleCollisions(x,y,moving,opponent,keyCode);
@@ -703,9 +703,9 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
     boolean move = true;
     GridLocation loc = new GridLocation(x, y);
     if (x < 0 || x >= grid.getNumRows() || y < 0 || y >= grid.getNumCols()){
-      move = false;
+      return;
     }
-    if (opponent.collisionCheck(loc) == true) {
+    if (loc.equals(opponent.getLocation())) {
       move = false;
     }
 

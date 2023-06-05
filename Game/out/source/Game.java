@@ -151,6 +151,7 @@ SoundFile boomSound;
 SoundFile itemSound;
 SoundFile moveSound;
 SoundFile goSound;
+SoundFile spawnSound;
 //INPUTS
 
 
@@ -201,6 +202,7 @@ public void setup() {
   itemSound = new SoundFile(this, "sounds/Collect.wav");
   moveSound = new SoundFile(this, "sounds/Move.wav");
   goSound = new SoundFile(this, "sounds/gameover.wav");
+  spawnSound = new SoundFile(this, "sounds/Spawn.wav");
   // Load a soundfile from the /data folder of the sketch and play it back
   // song = new SoundFile(this, "sounds/Lenny_Kravitz_Fly_Away.mp3");
   // song.play();
@@ -705,16 +707,16 @@ public void movePlayer(Player moving, Player opponent, int[] keys, int keyCode){
     //change the field for player1Row
     int x = moving.getX();
     int y = moving.getY();
-   if (keyCode == keys[0] && moving.getX() > 0 && !(moving.getX()-1 == opponent.getX() && moving.getY()  == opponent.getY()) ){
+   if (keyCode == keys[0]){
     x--;
    }
-   if (keyCode == keys[1] && moving.getY()  > 0 && !(moving.getY()-1 == opponent.getY() && moving.getX() == opponent.getX())) {
+   if (keyCode == keys[1]) {
     y--;
    }
-   if (keyCode == keys[2] && moving.getX() < grid.getNumRows()-1 && !(moving.getX()+1 == opponent.getX() && moving.getY()  == opponent.getY())) {
+   if (keyCode == keys[2]) {
     x++;
    }
-   if (keyCode == keys[3] && moving.getY() < grid.getNumCols()-1 && !(moving.getY()+1 == opponent.getY() && moving.getX() == opponent.getX())) {
+   if (keyCode == keys[3]) {
     y++;
    }
     handleCollisions(x,y,moving,opponent,keyCode);
@@ -731,9 +733,9 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
     boolean move = true;
     GridLocation loc = new GridLocation(x, y);
     if (x < 0 || x >= grid.getNumRows() || y < 0 || y >= grid.getNumCols()){
-      move = false;
+      return;
     }
-    if (opponent.collisionCheck(loc) == true) {
+    if (loc.equals(opponent.getLocation())) {
       move = false;
     }
 
@@ -1532,6 +1534,8 @@ public class Grid{
   }
   public void populateItems(){
     String[] items = new String[3];
+    spawnSound.stop();
+    spawnSound.play();
     for (int i = 0; i < 3; i++){
       if (this.allFilled()){
         break;

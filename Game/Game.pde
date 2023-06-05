@@ -2,7 +2,6 @@
  * Last Edit: 12/13/2022
  * Authors: Raymond Morel, Muhammad Zahid
  */
-//TODO: Add instructions.
 import java.util.concurrent.*;
 import processing.sound.*;
 //UI Variables
@@ -16,8 +15,8 @@ color playColor, instructColor;
 color playShade, instructShade;
 boolean playOver = false;
 boolean instructOver = false;
-
-
+boolean backOver = false;
+PImage controls;
 //GAME VARIABLES
 private int msElapsed = 0;
 boolean canpause = true;
@@ -47,6 +46,13 @@ protected int[][] dirs =
   {1,0}, //down
   {0,-1}, //left
   {0,1} //right
+};
+protected int[][] extradirs = 
+{
+  {-1,-1}, // up-left
+  {-1,1}, // up-right
+  {1,-1}, // down-left
+  {1,1} // down-right
 };
 ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 protected String[] powers = {
@@ -101,7 +107,8 @@ protected String[] rarepowers = {
   "PiercingBalloon",
   "RollerBlades",
   "PackOfBalloons",
-  "WaterTank"
+  "WaterTank",
+  "Sponge"
 };
 
 //SOUNDS
@@ -239,6 +246,7 @@ void keyPressed(){
       gamestate = 2;
       Runnable pause = () -> resetPause();
       executorService.schedule(pause, 500, TimeUnit.MILLISECONDS);
+      pausesound.stop();
       pausesound.play();
     }
 
@@ -254,6 +262,7 @@ void keyPressed(){
         reset();
       }
       else{
+        pausesound.stop();
         pausesound.play();
       }
       gamestate = 1;
@@ -279,6 +288,12 @@ void keyPressed(){
             reset();
             gamestate = 1;
           }
+          if (backOver){
+            submenu = 0;
+          }
+          if (instructOver){
+            submenu = 1;
+          }
         }
         else{
           reset();
@@ -286,10 +301,11 @@ void keyPressed(){
         }
       }
       else  {
+        pausesound.stop();
         pausesound.play();
         if (playOver) {
           gamestate = 1;
-        } else {
+        } else if (instructOver) {
           gamestate = 0;
         }
 
@@ -313,37 +329,121 @@ void keyPressed(){
   }
 
   void initgame(){
-    background(bg);
-    textSize(64);
-    textAlign(CENTER);
-    fill(255);
-    text("Fire Fighters", 800/2, 600/5);
-    if (overRect(playX,playY, playSizeX, playSizeY)){
-      playOver = true;
-      instructOver = false;
-    } else if (overRect(instructX,instructY, instructSizeX, instructSizeY)){
-      playOver = false;
-      instructOver = true;
-    } else {
-      playOver = instructOver = false;
+    if (submenu == 0){
+      background(bg);
+      textSize(64);
+      textAlign(CENTER);
+      fill(255);
+      text("Fire Fighters", 800/2, 600/5);
+      if (overRect(playX,playY, playSizeX, playSizeY)){
+        playOver = true;
+        instructOver = false;
+        backOver = false;
+      } else if (overRect(instructX,instructY, instructSizeX, instructSizeY)){
+        playOver = false;
+        instructOver = true;
+        backOver = false;
+      } else {
+        playOver = instructOver = backOver = false;
+      }
+      if (playOver){
+        fill(playShade);
+      } else {
+        fill(playColor);
+      }
+      rect(playX, playY, playSizeX, playSizeY,5);
+      fill(0);
+      text("Play",800/2,600/2);
+      if (instructOver){
+        fill(instructShade);
+      } else {
+        fill(instructColor);
+      }
+      rect(instructX, instructY, instructSizeX, instructSizeY,5);
+      fill(0);
+      textSize(48);
+      text("Rules",800/2,600/1.25);
+    } else if (submenu == 1) {
+      background(255);
+      textSize(64);
+      textAlign(RIGHT);
+      //fill(255);
+      //text("Fire Fighters", 800/2, 600/5);
+     if (overRect(0, 0, 200, 50)) {
+        playOver = false;
+        instructOver = false;
+        backOver = true;
+      } else {
+        playOver = false;
+        instructOver = false;
+        backOver = false;
+      }
+      if (backOver){
+        fill(200,110,0);
+      } else {
+        fill(255,165,0);
+      }
+      rect(0,0,200,50,5);
+      fill(0);
+      textSize(32);
+      text("Back",100,30);
+      textAlign(LEFT);
+      textSize(16);
+      text("Move with WASD (p1) and Arrow Keys (p2), and place balloons with E (p1) and Spacebar (p2).",0,55,220,80);
+      textSize(11);
+      text("Your goal is to splash up the opponent with balloons. Balloons explode after 2 seconds, or when caught in another balloon's explosion. Just hope that you aren't in the recieving end! Balloon explosions extinguishes fire walls. There are powerups to collect throughout the game. Their effects are listed below. Have Fun!",575,0,225,130);
+      textSize(16);
+      image(controls,800/2-controls.width/2,0);
+      PImage skate = loadImage("images/Skates.png");
+      skate.resize(50,50);
+      image(skate, 50-skate.width/2, 140);
+      text("Increases your speed slightly.",80,140+25);
+      PImage spare = loadImage("images/SpareBalloon.png");
+      spare.resize(50,50);
+      image(spare, 50-spare.width/2, 220);
+      text("Can place one more balloon at a time.",80,220+25);
+      PImage hose = loadImage("images/Hose.png");
+      hose.resize(50,50);
+      image(hose, 50-hose.width/2, 300);
+      text("Larger splash radius.",80,300+25);
+      PImage coat = loadImage("images/Raincoat.png");
+      coat.resize(50,50);
+      image(coat, 50-coat.width/2, 380);
+      text("Allows you to take one more hit.",80,380+25);
+      PImage hat = loadImage("images/HardHat.png");
+      hat.resize(50,50);
+      image(hat, 50-hat.width/2, 460);
+      text("You are no longer able to hurt yourself.",80,460+25);
+      PImage hydro = loadImage("images/Hydrogen.png");
+      hydro.resize(50,50);
+      image(hydro, 50-hydro.width/2, 540);
+      text("Your balloons hurt more.",80,540+25);
+      PImage blades = loadImage("images/RollerBlades.png");
+      blades.resize(50,50);
+      text("Increases your speed to the maximum.",430,140+25);
+      image(blades,800/2-blades.width/2, 140);
+      PImage pack = loadImage("images/PackOfBalloons.png");
+      pack.resize(50,50);
+      image(pack,800/2-pack.width/2, 220);
+      text("Gives you the maximum of 5 balloons to use at once.",430,220+25);
+      PImage tank = loadImage("images/WaterTank.png");
+      tank.resize(50,50);
+      image(tank,800/2-tank.width/2, 300);
+      text("Increases your splash radius to the maximum.",430,300+25);
+      PImage spon = loadImage("images/Sponge.png");
+      spon.resize(50,50);
+      image(spon,800/2-spon.width/2, 380);
+      text("Allows the explosions to go diagonally.",430,380+25);
+      PImage glove = loadImage("images/BoxingGlove.png");
+      glove.resize(50,50);
+      image(glove,800/2-glove.width/2, 460);
+      text("You can push balloons by running into them!",430,460+25);
+      PImage pier = loadImage("images/PiercingBalloon.png");
+      pier.resize(50,50);
+      image(pier,800/2-pier.width/2, 540);
+      text("Allows balloon explosions to pierce through walls.",430,540+25);
     }
-    if (playOver){
-      fill(playShade);
-    } else {
-      fill(playColor);
-    }
-    rect(playX, playY, playSizeX, playSizeY,5);
-    fill(0);
-    text("Play",800/2,600/2);
-    if (instructOver){
-      fill(instructShade);
-    } else {
-      fill(instructColor);
-    }
-    rect(instructX, instructY, instructSizeX, instructSizeY,5);
-    fill(0);
-    textSize(48);
-    text("Instructions",800/2,600/1.25);
+
   }
 void playinggame(int dt){
 
@@ -369,10 +469,10 @@ void playinggame(int dt){
     textSize(64);
     textAlign(CENTER);
     fill(255);
-textSize(64);
+    textSize(64);
     textAlign(CENTER);
     fill(255);
-    text("Paused", 800/2, 600/5);
+    text("Paused.", 800/2, 600/5);
     if (overRect(playX,playY, playSizeX, playSizeY)){
       playOver = true;
       instructOver = false;
@@ -403,7 +503,7 @@ textSize(64);
   if (gamestate == 3){
     textSize(64);
     textAlign(CENTER);
-    fill(0);
+    fill(255);
     if (player2.isLiving() && !(player1.isLiving())){
       text("Player 2 Wins!", 800/2, 600/2);
     } else if (!(player2.isLiving()) && player1.isLiving()) {
@@ -458,6 +558,8 @@ public void updateTitleBar(){
 }
 
 void setupButtons(){
+  controls = loadImage("images/controls.png");
+  controls.resize(350,0);
   instructColor = color(255,0,0);
   playColor = color(0,255,0);
   instructShade = color(200,0,0);
@@ -549,6 +651,9 @@ public void moveSprites(){
 
 }
 public void movePlayer(Player moving, Player opponent, int[] keys, int keyCode){
+  if (gamestate != 1){
+    return;
+  }
     blocklist = grid.getBList();
     //check case where out of bounds
     //change the field for player1Row
@@ -586,6 +691,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
     Block b = blocklist[x][y];
       if (b != null && b.getType().equals("Raincoat")){
         moving.addLife();
+        lifeSound.stop();
         lifeSound.play();
         blocklist[x][y] = null;
       }
@@ -618,10 +724,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("Sponge")){
-        moving.addLife();
-        moving.addLife();
-        moving.addLife();
-        lifeSound.play();
+        moving.setDiagonal();
         blocklist[x][y] = null;
       }
       else if (b != null && b.getType().equals("WaterTank")){
@@ -643,6 +746,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
           int dirx = x - moving.getX();
           int diry = y - moving.getY();
           movable.pushBomb(dirx,diry);
+          kicksound.stop();
           kicksound.play();
         }
       }
@@ -656,6 +760,7 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
 
 }
 public void placeBomb(Player placer){
+    placeSound.stop();
     placeSound.play();
     placer.addBomb();
     PImage wall = loadImage("images/balloon.png");

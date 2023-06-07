@@ -1,12 +1,14 @@
 /* Grid Class - Used for rectangular-tiled games
  * A 2D array of GridTiles which can be marked
  * Author: Joel Bianchi
- * Last Edit: 5/24/2023
+ * Last Edit: 6/6/2023
  * Edited to show all Images & Sprites
+ * Made a subclass of World
  */
 import java.util.List;
 import java.util.ArrayList;
-public class Grid{
+
+public class Grid extends World{
   private int rows;
   private int cols;
   private GridTile[][] board;
@@ -28,8 +30,10 @@ public class Grid{
   private Block[][] blocklist;
   
 
-  //Grid constructor that will create a Grid with the specified number of rows and cols
-  public Grid(int rows, int cols){
+  //Grid constructor #1
+  public Grid(String screenName, PImage bg, int rows, int cols){
+    super(screenName, bg);
+
     this.rows = rows;
     this.cols = cols;
     board = new GridTile[rows][cols];
@@ -40,6 +44,16 @@ public class Grid{
         board[r][c] = new GridTile(new GridLocation(r,c));
       }
     }
+  }
+
+  //Grid Construtor #2: Only accepts the number of rows & columns (Default for 2023)
+  public Grid(int rows, int cols){
+    this("grid",null, rows, cols);
+  }
+
+  // Grid Constructor #3: Default constructor that creates a 3x3 Grid  
+  public Grid(){
+     this(3,3);
   }
 
   public void generateLevel()
@@ -123,12 +137,7 @@ public boolean allFilled(){
     
   }
 
-  
-  // Default Grid constructor that creates a 3x3 Grid  
-  public Grid(){
-     this(3,3);
-  }
-
+ 
   public Block[][] getBList(){
     return blocklist;
   }
@@ -347,7 +356,7 @@ public boolean allFilled(){
 
   
   //Method to show all the PImages stored in each GridTile
-  public void showSprites(){
+  public void showGridSprites(){
 
     //Loop through all the Tiles and display its images/sprites
       for(int r=0; r<getNumRows(); r++){
@@ -365,19 +374,26 @@ public boolean allFilled(){
       }
   }
 
+  //Method to clear the screen from all Images & Sprites
+    public void clearGrid(){
 
+      //Loop through all the Tiles and display its images/sprites
+        for(int r=0; r<getNumRows(); r++){
+          for(int c=0; c<getNumCols(); c++){
 
-
-
-
-
-  public void pause(final int milliseconds) {
-    try {
-      Thread.sleep(milliseconds);
-    } catch (final Exception e) {
-      // ignore
+            //Store temporary GridLocation
+            GridLocation tempLoc = new GridLocation(r,c);
+            
+            //Check if the tile has an image
+            if(hasTileSprite(tempLoc)){
+              setTileSprite(tempLoc, getTileSprite(tempLoc));
+              //showTileSprite(tempLoc);
+            }
+          }
+        }
     }
-  }
+
+
 
 
 }

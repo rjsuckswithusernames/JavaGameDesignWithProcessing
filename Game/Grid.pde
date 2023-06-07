@@ -58,12 +58,10 @@ public class Grid extends World{
 
   public void generateLevel()
   {
-    PImage wall = loadImage("images/bricks.jpg");
     wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-    PImage fire = loadImage("images/Fire.png");
     fire.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
-    for (int x = 0; x < rows; x++){
-      for (int y = 0; y < cols; y++){
+    for (int x = 0; x < template.length; x++){
+      for (int y = 0; y < template[0].length; y++){
         if (template[x][y].equals("") && Math.random() < .9){
 
           blocklist[x][y] = new Block(fire,x,y,"Fire");

@@ -3,6 +3,7 @@
  * Authors: Raymond Morel, Muhammad Zahid
  */
 import java.util.concurrent.*;
+import java.util.ArrayList;
 import processing.sound.*;
 //UI Variables
 int playX,playY;
@@ -23,7 +24,7 @@ boolean canpause = true;
 protected int gamestate = 0; // 0: Main Menu, 1: Game, 2: Paused, 3: Game-Over
 protected int submenu = 0; // 0: Title, 1: Instructions
 
-int maximumx = 11;
+int maximumx = 12;
 int maximumy = 13;
 int lastTime = 0;
 int delta = 0;
@@ -32,11 +33,13 @@ PImage bg;
 
 Player player1;
 Player player2;
+PImage p1image;
+PImage p2image;
 int p1score = 0;
 int p2score = 0;
 PImage endScreen;
 String titleText = "Fire Fighters";
-String extraText = "real";
+String extraText = "by RJ & Muhammad";
 AnimatedSprite exampleSprite;
 boolean doAnimation;
 Block[][] blocklist;
@@ -101,8 +104,9 @@ protected String[] powers = {
   "balloon", // because im evil :)
   "balloon",
   "balloon"
-
 };
+protected ArrayList<PImage> p1Powers;
+protected ArrayList<PImage> p2Powers;
 protected String[] rarepowers = {
   "PiercingBalloon",
   "RollerBlades",
@@ -146,7 +150,37 @@ int space = 32;
 boolean p2movedebounce = false;
 
 int esc = 27;
-//SoundFile song;
+
+//Instruct Images
+PImage skat;
+PImage spare;
+PImage hos;
+PImage coat;
+PImage hat;
+PImage hydro;
+PImage blades;
+PImage pack;
+PImage tank;
+PImage spon;
+PImage glove;
+PImage pier;
+//Item Images
+PImage skates;
+PImage spareBalloon;
+PImage hose;
+PImage raincoat;
+PImage hardHat;
+PImage hydrogen;
+PImage rollerblades;
+PImage packOfBalloons;
+PImage waterTank;
+PImage sponge;
+PImage boxingGlove;
+PImage piercingBalloon;
+PImage wall;
+PImage fire;
+PImage bl;
+PImage kaboom;
 
 
 
@@ -164,6 +198,7 @@ void setup() {
   bg.resize(800,600);
   endScreen = loadImage("images/youwin.png");
   setupButtons();
+  setupImgs();
   reset();
   pausesound = new SoundFile(this, "sounds/Pause.wav");
   kicksound = new SoundFile(this, "sounds/Kick.wav");
@@ -402,56 +437,80 @@ void keyPressed(){
       text("Your goal is to splash up the opponent with balloons. Balloons explode after 2 seconds, or when caught in another balloon's explosion. Just hope that you aren't in the recieving end! Balloon explosions extinguishes fire walls. There are powerups to collect throughout the game. Their effects are listed below. Have Fun!",575,0,225,130);
       textSize(16);
       image(controls,800/2-controls.width/2,0);
-      PImage skate = loadImage("images/Skates.png");
-      skate.resize(50,50);
-      image(skate, 50-skate.width/2, 140);
+      image(skat, 50-skat.width/2, 140);
       text("Increases your speed slightly.",80,140+25);
-      PImage spare = loadImage("images/SpareBalloon.png");
-      spare.resize(50,50);
       image(spare, 50-spare.width/2, 220);
       text("Can place one more balloon at a time.",80,220+25);
-      PImage hose = loadImage("images/Hose.png");
-      hose.resize(50,50);
-      image(hose, 50-hose.width/2, 300);
+      image(hos, 50-hos.width/2, 300);
       text("Larger splash radius.",80,300+25);
-      PImage coat = loadImage("images/Raincoat.png");
-      coat.resize(50,50);
       image(coat, 50-coat.width/2, 380);
       text("Allows you to take one more hit.",80,380+25);
-      PImage hat = loadImage("images/HardHat.png");
-      hat.resize(50,50);
       image(hat, 50-hat.width/2, 460);
       text("You are no longer able to hurt yourself.",80,460+25);
-      PImage hydro = loadImage("images/Hydrogen.png");
-      hydro.resize(50,50);
       image(hydro, 50-hydro.width/2, 540);
-      text("Your balloons hurt more.",80,540+25);
-      PImage blades = loadImage("images/RollerBlades.png");
-      blades.resize(50,50);
+      text("Your balloons hurt more. Doesn't stack.",80,540+25);
       text("Increases your speed to the maximum.",430,140+25);
       image(blades,800/2-blades.width/2, 140);
-      PImage pack = loadImage("images/PackOfBalloons.png");
-      pack.resize(50,50);
       image(pack,800/2-pack.width/2, 220);
       text("Gives you the maximum of 5 balloons to use at once.",430,220+25);
-      PImage tank = loadImage("images/WaterTank.png");
-      tank.resize(50,50);
       image(tank,800/2-tank.width/2, 300);
       text("Increases your splash radius to the maximum.",430,300+25);
-      PImage spon = loadImage("images/Sponge.png");
-      spon.resize(50,50);
       image(spon,800/2-spon.width/2, 380);
       text("Allows the explosions to go diagonally.",430,380+25);
-      PImage glove = loadImage("images/BoxingGlove.png");
-      glove.resize(50,50);
       image(glove,800/2-glove.width/2, 460);
       text("You can push balloons by running into them!",430,460+25);
-      PImage pier = loadImage("images/PiercingBalloon.png");
-      pier.resize(50,50);
       image(pier,800/2-pier.width/2, 540);
       text("Allows balloon explosions to pierce through walls.",430,540+25);
     }
 
+  }
+  void setupImgs(){
+      skat = loadImage("images/Skates.png");
+      skat.resize(50,50);
+      spare = loadImage("images/SpareBalloon.png");
+      spare.resize(50,50);
+      hos = loadImage("images/Hose.png");
+      hos.resize(50,50);
+      coat = loadImage("images/Raincoat.png");
+      coat.resize(50,50);
+      hat = loadImage("images/HardHat.png");
+      hat.resize(50,50);
+      hydro = loadImage("images/Hydrogen.png");
+      hydro.resize(50,50);
+      blades = loadImage("images/RollerBlades.png");
+      blades.resize(50,50);
+      pack = loadImage("images/PackOfBalloons.png");
+      pack.resize(50,50);
+      tank = loadImage("images/WaterTank.png");
+      tank.resize(50,50);
+      spon = loadImage("images/Sponge.png");
+      spon.resize(50,50);
+      glove = loadImage("images/BoxingGlove.png");
+      glove.resize(50,50);
+      pier = loadImage("images/PiercingBalloon.png");
+      pier.resize(50,50);
+      skates = loadImage("images/Skates.png");
+      spareBalloon = loadImage("images/SpareBalloon.png");
+      hose = loadImage("images/Hose.png");
+      raincoat = loadImage("images/Raincoat.png");
+      hardHat = loadImage("images/HardHat.png");
+      hydrogen = loadImage("images/Hydrogen.png");
+      rollerblades = loadImage("images/RollerBlades.png");
+      packOfBalloons = loadImage("images/PackOfBalloons.png");
+      waterTank = loadImage("images/WaterTank.png");
+      sponge = loadImage("images/Sponge.png");
+      boxingGlove = loadImage("images/BoxingGlove.png");
+      piercingBalloon = loadImage("images/PiercingBalloon.png");
+      kaboom = loadImage("images/splash.png");
+      kaboom.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+      fire = loadImage("images/Fire.png");
+      fire.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+      wall = loadImage("images/bricks.jpg");
+      wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+      bl = loadImage("images/balloon.png");
+      bl.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
+      //PImage Skates
+      //PImage
   }
 void playinggame(int dt){
 
@@ -541,7 +600,9 @@ void playinggame(int dt){
     PImage p2image = loadImage("images/player2.png");
     p2image.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     player1 = new Player(p1image);
-    player2 = new Player(p2image,maximumx-1,maximumy-1);
+    player2 = new Player(p2image,maximumx-2,maximumy-1);
+    p1Powers = new ArrayList<PImage>();
+    p2Powers = new ArrayList<PImage>();
     Block[][] blocklist = grid.getBList();
   }
 
@@ -599,7 +660,7 @@ public void updateScreen(){
     GridLocation player2loc = new GridLocation(player2.getX(), player2.getY());
     grid.setTileImage(player2loc,player2.getImage());
     blocklist = grid.getBList();
-    for (int x = 0; x < grid.getNumRows(); x++){
+    for (int x = 0; x < grid.getNumRows()-1; x++){
       for (int y = 0; y < grid.getNumCols(); y++){
         Block b = blocklist[x][y];
         if (b != null){
@@ -607,6 +668,17 @@ public void updateScreen(){
         grid.setTileImage(bloc,b.getImage());
         }
       }
+    }
+    
+    for (int p = 0; p < p1Powers.size(); p++){
+      PImage powimage = p1Powers.get(p);
+      powimage.resize(Math.min(grid.getTileWidthPixels(),400/p1Powers.size()),grid.getTileHeightPixels()); 
+      image(powimage,0+powimage.width*p, 550);
+    }
+      for (int p = 0; p < p2Powers.size(); p++){
+      PImage powimage = p2Powers.get(p);
+      powimage.resize(Math.min(grid.getTileWidthPixels(),400/p2Powers.size()),grid.getTileHeightPixels()); 
+      image(powimage,800-powimage.width*(p+1), 550);
     }
 
   //Loop through all the Tiles and display its images/sprites
@@ -702,85 +774,111 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
     blocklist = grid.getBList();
     boolean move = true;
     GridLocation loc = new GridLocation(x, y);
-    if (x < 0 || x >= grid.getNumRows() || y < 0 || y >= grid.getNumCols()){
+    if (x < 0 || x >= grid.getNumRows()-1 || y < 0 || y >= grid.getNumCols()){
       return;
     }
     if (loc.equals(opponent.getLocation())) {
       move = false;
     }
-
+    ArrayList<PImage> powlist;
+    if (moving == player2){
+      powlist = p2Powers;
+    } else {
+      powlist = p1Powers;
+    }
     Block b = blocklist[x][y];
       if (b != null && b.getType().equals("Raincoat")){
         moving.addLife();
         itemSound.stop();
         itemSound.play();
         blocklist[x][y] = null;
+        powlist.add(raincoat.copy());
       }
       else if (b != null && b.getType().equals("Hose")){
         itemSound.stop();
         itemSound.play();
         moving.raiseExplosionRadius();
         blocklist[x][y] = null;
+        powlist.add(hose.copy());
       }
       else if (b != null && b.getType().equals("SpareBalloon")){
         itemSound.stop();
         itemSound.play();
         moving.raiseMaxBombs();
         blocklist[x][y] = null;
+        powlist.add(spareBalloon.copy());
+
       }
       else if (b != null && b.getType().equals("PiercingBalloon")){
         itemSound.stop();
         itemSound.play();
         moving.piercePowerup();
         blocklist[x][y] = null;
+        if (!hasItem(powlist, piercingBalloon)){
+          powlist.add(piercingBalloon.copy());
+        }
       }
       else if (b != null && b.getType().equals("HardHat")){
         itemSound.stop();
         itemSound.play();
         moving.sdImmunePowerup();
         blocklist[x][y] = null;
+        if (!hasItem(powlist, hardHat)){
+          powlist.add(hardHat.copy());
+        }
       }
       else if (b != null && b.getType().equals("BoxingGlove")){
         itemSound.stop();
         itemSound.play();
         moving.glovePowerup();
         blocklist[x][y] = null;
+        if (!hasItem(powlist, boxingGlove)){
+          powlist.add(boxingGlove.copy());
+        }
       }
       else if (b != null && b.getType().equals("Skates")){
         itemSound.stop();
         itemSound.play();
         moving.skatePowerup();
         blocklist[x][y] = null;
+        powlist.add(skates.copy());
       }
       else if (b != null && b.getType().equals("RollerBlades")){
         itemSound.stop();
         itemSound.play();
         moving.maxMoveSpeed();
         blocklist[x][y] = null;
+        powlist.add(rollerblades.copy());
       }
       else if (b != null && b.getType().equals("Sponge")){
         itemSound.stop();
         itemSound.play();
         moving.setDiagonal();
         blocklist[x][y] = null;
+        if (!hasItem(powlist, sponge)){
+          powlist.add(sponge.copy());
+        }
       }
       else if (b != null && b.getType().equals("WaterTank")){
         itemSound.stop();
         itemSound.play();
         moving.setExplosionRadius(10);
         blocklist[x][y] = null;
+        powlist.add(waterTank.copy());
       }
       else if (b != null && b.getType().equals("Hydrogen")){
         itemSound.stop();
         itemSound.play();
         moving.strongerBombs();
         blocklist[x][y] = null;
+        powlist.add(hydrogen.copy());
       }
       else if (b != null && b.getType().equals("PackOfBalloons")){
         itemSound.stop();
         itemSound.play();
         moving.setMaxBombs(5);
         blocklist[x][y] = null;
+        powlist.add(packOfBalloons.copy());
       }
       else if ((b != null && b.getLocation().equals(loc)) || (blocklist[moving.getX()][moving.getY()] != null && blocklist[moving.getX()][moving.getY()].getType().equals("Explosion"))){
         move = false;
@@ -804,11 +902,19 @@ public void handleCollisions(int x, int y, Player moving, Player opponent, int d
     }
 
 }
+public boolean hasItem(ArrayList<PImage> haystack, PImage needle){
+  for(int i = 0; i < haystack.size(); i++){
+    if (haystack.get(i) == needle){
+      return true;
+    }
+  }
+  return false;
+}
 public void placeBomb(Player placer){
     placeSound.stop();
     placeSound.play();
     placer.addBomb();
-    PImage wall = loadImage("images/balloon.png");
+    PImage wall = bl;
     wall.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     GridLocation loc = placer.getLocation();
     grid.setMark("B", loc);

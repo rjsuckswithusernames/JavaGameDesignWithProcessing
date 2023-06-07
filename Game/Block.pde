@@ -148,7 +148,7 @@ public String getRandomPower(){
   }
     public void Explode(boolean p1cd, boolean p2cd){
               isPushed = false;
-    PImage exp = loadImage("images/splash.png");
+    PImage exp = kaboom;
     exp.resize(grid.getTileWidthPixels(),grid.getTileHeightPixels());
     Block[][] blocklist = grid.getBList();
     GridLocation loc = this.getLocation();
@@ -168,7 +168,7 @@ public String getRandomPower(){
       for(int i = 0; i <= radius; i++){
         int x = this.getX() + dir[0] * i;
         int y = this.getY() + dir[1] * i;
-        if (x < 0 || x >= grid.getNumRows() || y < 0 || y >= grid.getNumCols()){
+        if (x < 0 || x >= grid.getNumRows()-1 || y < 0 || y >= grid.getNumCols()){
           continue;
         }
         Block cell = blocklist[x][y];
@@ -241,7 +241,7 @@ public String getRandomPower(){
       for(int i = 0; i <= radius; i++){
         int x = this.getX() + dir[0] * i;
         int y = this.getY() + dir[1] * i;
-        if (x < 0 || x >= grid.getNumRows() || y < 0 || y >= grid.getNumCols()){
+        if (x < 0 || x >= grid.getNumRows()-1 || y < 0 || y >= grid.getNumCols()){
           continue;
         }
         Block cell = blocklist[x][y];
@@ -352,7 +352,7 @@ public String getRandomPower(){
 
       int x = this.getX() + dirx;
       int y = this.getY() + diry;
-      if (x < 0 || x >= grid.getNumRows() || y < 0 || y >= grid.getNumCols()){
+      if (x < 0 || x >= grid.getNumRows()-1 || y < 0 || y >= grid.getNumCols()){
         isPushed = false;
         return;
       }

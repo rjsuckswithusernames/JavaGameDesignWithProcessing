@@ -70,7 +70,7 @@ int p1score = 0;
 int p2score = 0;
 PImage endScreen;
 String titleText = "Fire Fighters";
-String extraText = "by RJ & Muhammad";
+String extraText = "by Raymond Morel & Muhammad Zahid";
 AnimatedSprite exampleSprite;
 boolean doAnimation;
 Block[][] blocklist;
@@ -408,7 +408,10 @@ public void keyPressed(){
       textSize(64);
       textAlign(CENTER);
       fill(255);
-      text("Fire Fighters", 800/2, 600/5);
+      text(titleText, 800/2, 600/5);
+      textSize(20);
+      text(extraText, 800/2, 600/4);
+      textSize(64);
       if (overRect(playX,playY, playSizeX, playSizeY)){
         playOver = true;
         instructOver = false;

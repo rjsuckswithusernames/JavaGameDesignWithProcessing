@@ -126,6 +126,7 @@ SoundFile itemSound;
 SoundFile moveSound;
 SoundFile goSound;
 SoundFile spawnSound;
+SoundFile music;
 //INPUTS
 
 
@@ -208,6 +209,7 @@ void setup() {
   moveSound = new SoundFile(this, "sounds/Move.wav");
   goSound = new SoundFile(this, "sounds/gameover.wav");
   spawnSound = new SoundFile(this, "sounds/Spawn.wav");
+  music = new SoundFile(this, "sounds/MusicLoop.wav");
   // Load a soundfile from the /data folder of the sketch and play it back
   // song = new SoundFile(this, "sounds/Lenny_Kravitz_Fly_Away.mp3");
   // song.play();
@@ -283,6 +285,7 @@ void keyPressed(){
   if (keyCode == esc){
     key = 0;
     if (canpause == true){
+      music.amp(.5);
       canpause = false;
       gamestate = 2;
       Runnable pause = () -> resetPause();
@@ -303,6 +306,7 @@ void keyPressed(){
         reset();
       }
       else{
+        music.amp(1);
         pausesound.stop();
         pausesound.play();
       }
@@ -328,6 +332,7 @@ void keyPressed(){
           if (playOver){
             reset();
             gamestate = 1;
+            music.loop();
           }
           if (backOver){
             submenu = 0;
@@ -338,18 +343,22 @@ void keyPressed(){
         }
         else{
           reset();
+          music.amp(1);
           gamestate = 1;
         }
       }
       else  {
+        
         pausesound.stop();
         pausesound.play();
         if (playOver) {
+          music.amp(1);
           gamestate = 1;
         } else if (instructOver) {
           p1score = 0;
           p2score = 0;
           gamestate = 0;
+          music.stop();
         }
 
       }
@@ -541,6 +550,7 @@ void playinggame(int dt){
       p1score++;
     }
     gamestate = 3;
+    music.amp(.5);
     
   }
   if (gamestate == 2){

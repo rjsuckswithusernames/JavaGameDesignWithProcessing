@@ -335,6 +335,7 @@ public void keyPressed(){
       canpause = false;
       if (gamestate != 2){
         reset();
+        music.amp(1);
       }
       else{
         music.amp(1);
@@ -363,6 +364,7 @@ public void keyPressed(){
           if (playOver){
             reset();
             gamestate = 1;
+            music.amp(1);
             music.loop();
           }
           if (backOver){

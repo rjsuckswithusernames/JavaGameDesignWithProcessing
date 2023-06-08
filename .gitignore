@@ -3,4 +3,5 @@ out
 *.class
 out/source
 .vscode/settings.json
+.vscode/settings.jsonx
 Game/out/source/Game.java
